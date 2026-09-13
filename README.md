@@ -11,6 +11,12 @@ The mod is purely cosmetic: no scripted effects, nothing is written to the save 
 
 > This mod was developed with extensive AI assistance (Claude by Anthropic).
 
+## Screenshots
+
+| Ships and an expanded fleet | Outdated ships of a template |
+|---|---|
+| ![Almanac tab with the ship template list and an expanded fleet](docs/almanac_overview.png) | ![Tooltip listing outdated ships with their current equipment](docs/almanac_outdated_ships.png) |
+
 ## Structure
 
 | Path | Purpose |
@@ -18,7 +24,8 @@ The mod is purely cosmetic: no scripted effects, nothing is written to the save 
 | `gui/00_fleet_almanac.gui` | Generated GUI file (do not edit by hand, see below) |
 | `localization/english`, `localization/german` | Texts |
 | `tools/build_fleet_almanac.ps1` | Build script that generates the GUI file |
-| `.metadata/metadata.json` | Launcher metadata |
+| `.metadata/metadata.json`, `.metadata/thumbnail.png` | Launcher metadata and thumbnail |
+| `docs/` | Screenshots for README and mod page |
 
 ## Rebuilding after a game update
 
