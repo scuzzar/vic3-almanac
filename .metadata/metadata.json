@@ -1,0 +1,12 @@
+{
+  "name" : "Fleet Almanac",
+	"id" : "",
+  "version" : "1.0.0",
+  "supported_game_version" : "1.13.*",
+  "short_description" : "Adds an Almanac tab to the country panel of other countries with an overview of their ships and fleets.",
+  "tags" : [],
+  "relationships" : [],
+  "game_custom_data" : {
+    "multiplayer_synchronized" : true
+  }
+}
