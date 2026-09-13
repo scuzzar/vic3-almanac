@@ -7,7 +7,6 @@
  FLEET_ALMANAC_GROUP: "[ShipGroup.GetNameNoFormatting]: #v [ShipList.GetNumShipsOfGroup(ShipGroup.Self)]#!"
  FLEET_ALMANAC_FLEETS_HEADER: "$concept_fleets$ ([GetDataModelSize(Country.GetMilitaryFormationsFleet)])"
  FLEET_ALMANAC_SHIP_HP: "@ship_hp! #[GetMoraleColorString(Ship.GetHitPointsPercentage)] [Ship.GetHitPointsPercentage|%0]#!"
- FLEET_ALMANAC_FLEET_HP: "@ship_hp! #[GetMoraleColorString(MilitaryFormation.GetHitPointsPercentage)] [MilitaryFormation.GetHitPointsPercentage|%0]#!"
  FLEET_ALMANAC_TOGGLE_SHIPS: "#I Klicken, um die einzelnen Schiffe ein- oder auszublenden#!"
  FLEET_ALMANAC_REGION_HEADER: "Stationiert in #v [StrategicRegion.GetNameNoFormatting]#!"
  FLEET_ALMANAC_NO_HQ_HEADER: "Ohne aktuelles HQ"

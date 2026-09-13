@@ -974,7 +974,7 @@ types fleet_almanac_types
 		}
 	}
 
-	### One fleet in one line (click = show/hide ship cards): flag, name + status, ships, hit points, zoom
+	### One fleet in one line (click = show/hide ship cards): flag, name + status, ships per ship group, open fleet button
 	type fleet_almanac_fleet_item = flowcontainer {
 		parentanchor = hcenter
 		direction = vertical
@@ -1041,47 +1041,57 @@ types fleet_almanac_types
 				}
 			}
 
-			### Ships / command limit, hit points, zoom
+			### Ships per ship group (icon + number), button that opens the fleet
 			flowcontainer = {
 				parentanchor = right|vcenter
 				position = { -8 0 }
-				spacing = 6
+				spacing = 12
 
-				small_header_grid_item = {
+				flowcontainer = {
 					parentanchor = vcenter
-					size = { 95 30 }
-					tooltip = "MILITARY_FORMATION_TOTAL_NUMBER_OF_UNITS_TOOLTIP"
+					spacing = 10
+					datamodel = "[GetShipGroups]"
 
-					blockoverride "backgrounds" {}
+					item = {
+						flowcontainer = {
+							visible = "[NotZero(ShipList.GetNumShipsOfGroup(ShipGroup.Self))]"
+							parentanchor = vcenter
+							spacing = 3
+							### Tooltip: this group's ship templates in the fleet (silhouette + number)
+							tooltipwidget = {
+								RegularTooltip_AdditionalShipTypes = {
+									blockoverride "header_text" {
+										text = "FLEET_ALMANAC_GROUP"
+									}
 
-					blockoverride "text_alignment" {
-						align = nobaseline
-						margin_left = 5
-					}
+									blockoverride "datamodel" {
+										datamodel = "[ShipList.GetShipTemplatesOfGroup(ShipGroup.Self)]"
+									}
+								}
+							}
 
-					blockoverride "text" {
-						text = "MILITARY_FORMATION_TOTAL_NUMBER_OF_UNITS"
-					}
+							icon = {
+								parentanchor = vcenter
+								size = { 26 26 }
+								texture = "[ShipGroup.GetIcon]"
+							}
 
-					blockoverride "icon" {
-						texture = "gfx/interface/icons/generic_icons/flotillas.dds"
+							textbox = {
+								parentanchor = vcenter
+								autoresize = yes
+								align = nobaseline
+								raw_text = "#v [ShipList.GetNumShipsOfGroup(ShipGroup.Self)]#!"
+							}
+						}
 					}
 				}
 
-				textbox = {
-					parentanchor = vcenter
-					autoresize = yes
-					align = nobaseline
-					min_width = 60
-					text = "FLEET_ALMANAC_FLEET_HP"
-				}
-
-				button_icon_zoom = {
+				button_icon_goto = {
 					parentanchor = vcenter
 					size = { 28 28 }
-					onclick = "[MilitaryFormation.ZoomToMapMarkerPosition]"
 					using = tooltip_ne
-					tooltip = "ZOOM_TO_MILITARY_FORMATION"
+					tooltip = "GO_TO_BUTTON_MILITARY_FORMATION"
+					onclick = "[InformationPanelBar.OpenMilitaryFormationPanelTab( MilitaryFormation.Self, 'default' )]"
 				}
 			}
 		}
