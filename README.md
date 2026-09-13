@@ -3,7 +3,7 @@
 A lean UI mod for **Victoria 3** (1.13.x) that adds an **Almanac** tab to the country panel of other countries, giving an overview of their navy:
 
 - **Ships** by ship group and ship template, with an expandable list of individual ships (name, fleet, hit points; vanilla ship tooltip)
-- **Fleets** grouped by the strategic region they are currently stationed in (current HQ), with ships per group, status, hit points and zoom
+- **Fleets** grouped by the strategic region they are currently stationed in (current HQ): one line per fleet (name, status, ships, hit points, zoom) that expands to the fleet's ship cards, separated by ship group
 
 The mod is purely cosmetic: no scripted effects, nothing is written to the save game.
 
@@ -20,7 +20,7 @@ The mod is purely cosmetic: no scripted effects, nothing is written to the save 
 
 ## Rebuilding after a game update
 
-`gui/00_fleet_almanac.gui` contains copies of vanilla types (`country_panel`, `tab_buttons`) and the list of land strategic regions, all taken from the installed game. After a game update, regenerate it:
+`gui/00_fleet_almanac.gui` contains copies of vanilla types (`country_panel`, `tab_buttons`, `ship_item` without the retrofit buttons) and the list of land strategic regions, all taken from the installed game. After a game update, regenerate it:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools\build_fleet_almanac.ps1

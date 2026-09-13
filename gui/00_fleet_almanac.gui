@@ -3,6 +3,7 @@
 # Contains generated copies of vanilla types (Victoria 3 1.13.11) - regenerate after game updates:
 #   country_panel (game/gui/country_panel.gui)   -> overridden: uses fleet_almanac_tab_buttons, adds the Almanac content
 #   tab_buttons   (game/gui/shared/tab_bars.gui) -> copied as fleet_almanac_tab_buttons with a 6th tab (vanilla tab_buttons untouched)
+#   ship_item     (game/gui/combat_unit_types.gui) -> copied as fleet_almanac_ship_item without the retrofit buttons
 # This file must load BEFORE country_panel.gui (00_ prefix): the first type definition wins.
 @panel_width_minus_20 = 520
 @panel_width_minus_10 = 530			# used to be 530
@@ -973,140 +974,190 @@ types fleet_almanac_types
 		}
 	}
 
-	### One fleet: name, ships per group, status, HP, zoom (click = show/hide ships)
+	### One fleet in one line (click = show/hide ship cards): flag, name + status, ships, hit points, zoom
 	type fleet_almanac_fleet_item = flowcontainer {
 		parentanchor = hcenter
 		direction = vertical
 		minimumsize = { @panel_width -1 }
+		maximumsize = { @panel_width -1 }
 
 		background = {
 			using = entry_bg
 		}
 
-		widget = {
-			size = { @panel_width 60 }
+		section_header_button = {
+			datacontext = "[MilitaryFormation.GetShipList]"
+			parentanchor = hcenter
+			size = { @panel_width 48 }
+			onmousehierarchyenter = "[AccessHighlightManager.HighlightMilitaryFormation( MilitaryFormation.Self )]"
+			onmousehierarchyleave = "[AccessHighlightManager.RemoveHighlight]"
 
-			button = {
-				size = { 100% 100% }
-				using = default_button
-				tooltip = "FLEET_ALMANAC_FLEET_TOOLTIP"
+			blockoverride "onclick" {
 				onclick = "[GetVariableSystem.Toggle(Concatenate('fleet_almanac_fleet_', MilitaryFormation.GetIDString))]"
 			}
 
-			button = {
+			blockoverride "onclick_showmore" {
 				visible = "[Not(GetVariableSystem.Exists(Concatenate('fleet_almanac_fleet_', MilitaryFormation.GetIDString)))]"
-				parentanchor = vcenter
-				position = { 8 0 }
-				size = { 25 25 }
-				using = expand_arrow
-				alwaystransparent = yes
 			}
 
-			button = {
+			blockoverride "onclick_showless" {
 				visible = "[GetVariableSystem.Exists(Concatenate('fleet_almanac_fleet_', MilitaryFormation.GetIDString))]"
-				parentanchor = vcenter
-				position = { 8 0 }
-				size = { 25 25 }
-				using = expand_arrow_expanded
-				alwaystransparent = yes
 			}
 
+			### Flag, name and status
 			flowcontainer = {
-				direction = vertical
-				position = { 38 6 }
-				spacing = 2
+				parentanchor = vcenter
+				position = { 32 0 }
+				spacing = 6
 
-				textbox = {
-					autoresize = yes
-					max_width = 290
-					elide = right
-					align = nobaseline
-					using = fontsize_large
-					text = "FLEET_ALMANAC_FLEET_NAME"
+				icon = {
+					parentanchor = vcenter
+					size = { 36 36 }
+					texture = "[MilitaryFormation.GetFlag]"
+					color = "[MilitaryFormation.GetFlagColor]"
 				}
 
 				flowcontainer = {
-					datacontext = "[MilitaryFormation.GetShipList]"
-					datamodel = "[GetShipGroups]"
-					spacing = 10
+					parentanchor = vcenter
+					direction = vertical
 
-					item = {
-						flowcontainer = {
-							visible = "[NotZero(ShipList.GetNumShipsOfGroup(ShipGroup.Self))]"
-							tooltip = "[ShipGroup.GetNameNoFormatting]"
-							spacing = 3
+					textbox = {
+						autoresize = yes
+						align = nobaseline
+						elide = right
+						max_width = 250
+						default_format = "#header"
+						text = "[MilitaryFormation.GetNameNoFormatting]"
+					}
 
-							icon = {
-								parentanchor = vcenter
-								size = { 20 20 }
-								texture = "[ShipGroup.GetIcon]"
-							}
-
-							textbox = {
-								parentanchor = vcenter
-								autoresize = yes
-								align = nobaseline
-								raw_text = "#v [ShipList.GetNumShipsOfGroup(ShipGroup.Self)]#!"
-							}
-						}
+					textbox = {
+						autoresize = yes
+						align = nobaseline
+						elide = right
+						max_width = 250
+						using = fontsize_small
+						text = "[MilitaryFormation.GetShortFormationStatusDesc]"
 					}
 				}
 			}
 
+			### Ships / command limit, hit points, zoom
 			flowcontainer = {
 				parentanchor = right|vcenter
-				position = { -45 0 }
-				direction = vertical
-				spacing = 2
+				position = { -8 0 }
+				spacing = 6
 
-				textbox = {
-					parentanchor = right
-					autoresize = yes
-					max_width = 160
-					elide = right
-					align = right|nobaseline
-					using = fontsize_small
-					text = "[MilitaryFormation.GetShortFormationStatusDesc]"
+				small_header_grid_item = {
+					parentanchor = vcenter
+					size = { 95 30 }
+					tooltip = "MILITARY_FORMATION_TOTAL_NUMBER_OF_UNITS_TOOLTIP"
+
+					blockoverride "backgrounds" {}
+
+					blockoverride "text_alignment" {
+						align = nobaseline
+						margin_left = 5
+					}
+
+					blockoverride "text" {
+						text = "MILITARY_FORMATION_TOTAL_NUMBER_OF_UNITS"
+					}
+
+					blockoverride "icon" {
+						texture = "gfx/interface/icons/generic_icons/flotillas.dds"
+					}
 				}
 
 				textbox = {
-					parentanchor = right
+					parentanchor = vcenter
 					autoresize = yes
-					align = right|nobaseline
+					align = nobaseline
+					min_width = 60
 					text = "FLEET_ALMANAC_FLEET_HP"
 				}
-			}
 
-			button_icon_zoom = {
-				parentanchor = right|vcenter
-				position = { -8 0 }
-				size = { 30 30 }
-				tooltip = "FLEET_ALMANAC_ZOOM"
-				onclick = "[MilitaryFormation.ZoomToMapMarkerPosition]"
+				button_icon_zoom = {
+					parentanchor = vcenter
+					size = { 28 28 }
+					onclick = "[MilitaryFormation.ZoomToMapMarkerPosition]"
+					using = tooltip_ne
+					tooltip = "ZOOM_TO_MILITARY_FORMATION"
+				}
 			}
 		}
 
 		flowcontainer = {
-			visible = "[GetVariableSystem.Exists(Concatenate('fleet_almanac_fleet_', MilitaryFormation.GetIDString))]"
 			parentanchor = hcenter
 			direction = vertical
-			spacing = 2
-			margin = { 0 5 }
-			datacontext = "[MilitaryFormation.GetShipList]"
-			datamodel = "[ShipList.GetShips]"
 
-			item = {
-				fleet_almanac_ship_row = {
-					blockoverride "second_column" {
-						textbox = {
-							parentanchor = vcenter
-							position = { 295 0 }
-							autoresize = yes
-							max_width = 150
-							elide = right
-							align = nobaseline
-							using = fontsize_small
-							raw_text = "[Ship.GetTemplate.GetNameNoFormatting]"
+			### Ship cards (fleet_almanac_ship_item) in two columns, separated by ship group - no nested dropdowns
+			flowcontainer = {
+				visible = "[GetVariableSystem.Exists(Concatenate('fleet_almanac_fleet_', MilitaryFormation.GetIDString))]"
+				datacontext = "[MilitaryFormation.GetShipList]"
+				parentanchor = hcenter
+				direction = vertical
+				ignoreinvisible = yes
+				margin = { 0 5 }
+				spacing = 5
+				datamodel = "[GetShipGroups]"
+
+				item = {
+					flowcontainer = {
+						visible = "[NotZero(ShipList.GetNumShipsOfGroup(ShipGroup.Self))]"
+						parentanchor = hcenter
+						direction = vertical
+						spacing = 3
+
+						### Group separator: icon + "Capital Ships: 3"
+						widget = {
+							parentanchor = hcenter
+							size = { 520 30 }
+
+							background = {
+								using = dark_area
+							}
+
+							flowcontainer = {
+								parentanchor = vcenter
+								position = { 10 0 }
+								spacing = 5
+
+								icon = {
+									parentanchor = vcenter
+									size = { 24 24 }
+									texture = "[ShipGroup.GetIcon]"
+								}
+
+								textbox = {
+									parentanchor = vcenter
+									autoresize = yes
+									align = nobaseline
+									text = "FLEET_ALMANAC_GROUP"
+								}
+							}
+						}
+
+						fixedgridbox = {
+							parentanchor = hcenter
+							addcolumn = 260
+							addrow = 105
+							flipdirection = yes
+							datamodel_wrap = 2
+							datamodel = "[ShipList.GetShipsOfGroup(ShipGroup.Self)]"
+
+							item = {
+								widget = {
+									size = { 260 105 }
+
+									fleet_almanac_ship_item = {
+										parentanchor = center
+
+										blockoverride "ship_item_size" {
+											size = { 250 100 }
+										}
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1114,7 +1165,7 @@ types fleet_almanac_types
 		}
 	}
 
-	### One ship: silhouette, name, fleet (or template), HP; vanilla ship tooltip
+	### One ship: silhouette, name, fleet, HP; vanilla ship tooltip
 	type fleet_almanac_ship_row = button {
 		size = { 530 34 }
 		using = default_button
@@ -1140,7 +1191,7 @@ types fleet_almanac_types
 			parentanchor = vcenter
 			position = { 90 0 }
 			autoresize = yes
-			max_width = 200
+			max_width = 165
 			elide = right
 			align = nobaseline
 			raw_text = "[JoinText(Nbsp, AddLocalizationIf(Ship.IsFlagship, '@flagship!'), Ship.GetNameNoFormatting)]"
@@ -1149,9 +1200,9 @@ types fleet_almanac_types
 		block "second_column" {
 			textbox = {
 				parentanchor = vcenter
-				position = { 295 0 }
+				position = { 262 0 }
 				autoresize = yes
-				max_width = 150
+				max_width = 180
 				elide = right
 				align = nobaseline
 				using = fontsize_small
@@ -1166,5 +1217,162 @@ types fleet_almanac_types
 			align = right|nobaseline
 			text = "FLEET_ALMANAC_SHIP_HP"
 		}
+	}
+
+	### Copy of vanilla ship_item (game/gui/combat_unit_types.gui) without the retrofit / cancel retrofit buttons
+	type fleet_almanac_ship_item = widget {
+		parentanchor = center
+
+		block "ship_item_size" {
+			size = { 255 100 }
+		}
+
+		background = {
+			using = dark_area
+			alpha = 0.3
+		}
+
+		background = {
+			using = simple_frame
+			alpha = 0.4
+		}
+
+		tooltipwidget = {
+			FancyTooltip_Ship = {}
+		}
+
+		# Name and info header
+		widget = {
+			size = { 100% 44 }
+
+			hbox = {
+				layoutpolicy_horizontal = expanding
+				layoutpolicy_vertical = expanding
+				margin = { 2 2 }
+
+				### Checkbox to select ship in edit mode
+				hbox = {
+					visible = "[And(PdxGuiWidget.HasContext('ShipList'), ShipList.IsEditModeActiveForGroup(ShipGroup.Self))]"
+					margin_left = 5
+
+					checkbutton = {
+						datacontext = "[ShipList.GetActiveSelection]"
+						using = check_button
+						size = { 30 30 }
+						using = tooltip_ne
+						tooltip = "SELECT_SHIP"
+						onclick = "[ShipSelection.ToggleSelection(Ship.Self)]"
+						checked = "[ShipSelection.IsSelected(Ship.Self)]"
+					}
+				}
+
+				### Ship name without button - Edit mode
+				button = {
+					visible = "[And(PdxGuiWidget.HasContext('ShipList'), ShipList.IsEditModeActiveForGroup(ShipGroup.Self))]"
+					layoutpolicy_horizontal = expanding
+					layoutpolicy_vertical = expanding
+
+					background = {
+						using = fade_top_entry_header_colored
+						color = "[Country.GetMapColor]"
+					}
+
+					hbox = {
+						layoutpolicy_horizontal = expanding
+						layoutpolicy_vertical = expanding
+
+						textbox = {
+							layoutpolicy_horizontal = expanding
+							layoutpolicy_vertical = expanding
+							margin = { 10 2 }
+							margin_right = 5
+							elide = right
+							align = nobaseline
+							raw_text = "[JoinText(Nbsp, AddLocalizationIf(Ship.IsFlagship, '@flagship!'), Ship.GetNameNoFormatting)]"
+						}
+
+						flowcontainer = {
+							spacing = 2
+							margin_right = 10
+							datamodel = "[Ship.GetModifications]"
+
+							item = {
+								icon = {
+									size = { 24 24 }
+									texture = "[ShipModificationType.GetIcon]"
+								}
+							}
+						}
+					}
+				}
+
+
+				### Ship name with button - Not edit mode
+				button = {
+					visible = "[Not(And(PdxGuiWidget.HasContext('ShipList'), ShipList.IsEditModeActiveForGroup(ShipGroup.Self)))]"
+					layoutpolicy_horizontal = expanding
+					layoutpolicy_vertical = expanding
+					using = default_button
+					using = tooltip_ne
+					tooltip = "GO_TO_BUTTON_SHIP"
+					onclick = "[InformationPanelBar.OpenShipPanel(Ship.Self)]"
+
+					background = {
+						using = fade_top_entry_header_colored
+						color = "[Country.GetMapColor]"
+					}
+
+					hbox = {
+						layoutpolicy_horizontal = expanding
+						layoutpolicy_vertical = expanding
+
+						textbox = {
+							layoutpolicy_horizontal = expanding
+							layoutpolicy_vertical = expanding
+							margin = { 10 2 }
+							margin_right = 5
+							elide = right
+							align = nobaseline
+							raw_text = "[JoinText(Nbsp, AddLocalizationIf(Ship.IsFlagship, '@flagship!'), Ship.GetNameNoFormatting)]"
+						}
+
+						flowcontainer = {
+							spacing = 2
+							margin_right = 10
+							datamodel = "[Ship.GetModifications]"
+
+							item = {
+								icon = {
+									size = { 24 24 }
+									texture = "[ShipModificationType.GetIcon]"
+								}
+							}
+						}
+					}
+				}
+
+				expand = {}
+
+
+				### Battle icon button
+				button_icon_round = {
+					visible = "[Ship.IsInBattle]"
+					datacontext = "[Ship.GetNavalBattle]"
+					size = { 40 40 }
+					tooltip = "[NavalBattle.GetStatusString]"
+					onclick = "[InformationPanelBar.OpenNavalBattlePanel(NavalBattle.AccessSelf)]"
+
+					blockoverride "icon" {
+						texture = "[NavalBattle.GetBattleIcon]"
+					}
+
+					blockoverride "icon_size" {
+						size = { 75% 75% }
+					}
+				}
+			}
+		}
+
+		compact_ship_info_and_silhouette = {}
 	}
 }

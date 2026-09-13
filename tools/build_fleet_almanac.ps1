@@ -35,6 +35,7 @@ $header = Lines @'
 # Contains generated copies of vanilla types (Victoria 3 1.13.11) - regenerate after game updates:
 #   country_panel (game/gui/country_panel.gui)   -> overridden: uses fleet_almanac_tab_buttons, adds the Almanac content
 #   tab_buttons   (game/gui/shared/tab_bars.gui) -> copied as fleet_almanac_tab_buttons with a 6th tab (vanilla tab_buttons untouched)
+#   ship_item     (game/gui/combat_unit_types.gui) -> copied as fleet_almanac_ship_item without the retrofit buttons
 # This file must load BEFORE country_panel.gui (00_ prefix): the first type definition wins.
 '@
 
@@ -389,140 +390,190 @@ $content = Lines @'
 		}
 	}
 
-	### One fleet: name, ships per group, status, HP, zoom (click = show/hide ships)
+	### One fleet in one line (click = show/hide ship cards): flag, name + status, ships, hit points, zoom
 	type fleet_almanac_fleet_item = flowcontainer {
 		parentanchor = hcenter
 		direction = vertical
 		minimumsize = { @panel_width -1 }
+		maximumsize = { @panel_width -1 }
 
 		background = {
 			using = entry_bg
 		}
 
-		widget = {
-			size = { @panel_width 60 }
+		section_header_button = {
+			datacontext = "[MilitaryFormation.GetShipList]"
+			parentanchor = hcenter
+			size = { @panel_width 48 }
+			onmousehierarchyenter = "[AccessHighlightManager.HighlightMilitaryFormation( MilitaryFormation.Self )]"
+			onmousehierarchyleave = "[AccessHighlightManager.RemoveHighlight]"
 
-			button = {
-				size = { 100% 100% }
-				using = default_button
-				tooltip = "FLEET_ALMANAC_FLEET_TOOLTIP"
+			blockoverride "onclick" {
 				onclick = "[GetVariableSystem.Toggle(Concatenate('fleet_almanac_fleet_', MilitaryFormation.GetIDString))]"
 			}
 
-			button = {
+			blockoverride "onclick_showmore" {
 				visible = "[Not(GetVariableSystem.Exists(Concatenate('fleet_almanac_fleet_', MilitaryFormation.GetIDString)))]"
-				parentanchor = vcenter
-				position = { 8 0 }
-				size = { 25 25 }
-				using = expand_arrow
-				alwaystransparent = yes
 			}
 
-			button = {
+			blockoverride "onclick_showless" {
 				visible = "[GetVariableSystem.Exists(Concatenate('fleet_almanac_fleet_', MilitaryFormation.GetIDString))]"
-				parentanchor = vcenter
-				position = { 8 0 }
-				size = { 25 25 }
-				using = expand_arrow_expanded
-				alwaystransparent = yes
 			}
 
+			### Flag, name and status
 			flowcontainer = {
-				direction = vertical
-				position = { 38 6 }
-				spacing = 2
+				parentanchor = vcenter
+				position = { 32 0 }
+				spacing = 6
 
-				textbox = {
-					autoresize = yes
-					max_width = 290
-					elide = right
-					align = nobaseline
-					using = fontsize_large
-					text = "FLEET_ALMANAC_FLEET_NAME"
+				icon = {
+					parentanchor = vcenter
+					size = { 36 36 }
+					texture = "[MilitaryFormation.GetFlag]"
+					color = "[MilitaryFormation.GetFlagColor]"
 				}
 
 				flowcontainer = {
-					datacontext = "[MilitaryFormation.GetShipList]"
-					datamodel = "[GetShipGroups]"
-					spacing = 10
+					parentanchor = vcenter
+					direction = vertical
 
-					item = {
-						flowcontainer = {
-							visible = "[NotZero(ShipList.GetNumShipsOfGroup(ShipGroup.Self))]"
-							tooltip = "[ShipGroup.GetNameNoFormatting]"
-							spacing = 3
+					textbox = {
+						autoresize = yes
+						align = nobaseline
+						elide = right
+						max_width = 250
+						default_format = "#header"
+						text = "[MilitaryFormation.GetNameNoFormatting]"
+					}
 
-							icon = {
-								parentanchor = vcenter
-								size = { 20 20 }
-								texture = "[ShipGroup.GetIcon]"
-							}
-
-							textbox = {
-								parentanchor = vcenter
-								autoresize = yes
-								align = nobaseline
-								raw_text = "#v [ShipList.GetNumShipsOfGroup(ShipGroup.Self)]#!"
-							}
-						}
+					textbox = {
+						autoresize = yes
+						align = nobaseline
+						elide = right
+						max_width = 250
+						using = fontsize_small
+						text = "[MilitaryFormation.GetShortFormationStatusDesc]"
 					}
 				}
 			}
 
+			### Ships / command limit, hit points, zoom
 			flowcontainer = {
 				parentanchor = right|vcenter
-				position = { -45 0 }
-				direction = vertical
-				spacing = 2
+				position = { -8 0 }
+				spacing = 6
 
-				textbox = {
-					parentanchor = right
-					autoresize = yes
-					max_width = 160
-					elide = right
-					align = right|nobaseline
-					using = fontsize_small
-					text = "[MilitaryFormation.GetShortFormationStatusDesc]"
+				small_header_grid_item = {
+					parentanchor = vcenter
+					size = { 95 30 }
+					tooltip = "MILITARY_FORMATION_TOTAL_NUMBER_OF_UNITS_TOOLTIP"
+
+					blockoverride "backgrounds" {}
+
+					blockoverride "text_alignment" {
+						align = nobaseline
+						margin_left = 5
+					}
+
+					blockoverride "text" {
+						text = "MILITARY_FORMATION_TOTAL_NUMBER_OF_UNITS"
+					}
+
+					blockoverride "icon" {
+						texture = "gfx/interface/icons/generic_icons/flotillas.dds"
+					}
 				}
 
 				textbox = {
-					parentanchor = right
+					parentanchor = vcenter
 					autoresize = yes
-					align = right|nobaseline
+					align = nobaseline
+					min_width = 60
 					text = "FLEET_ALMANAC_FLEET_HP"
 				}
-			}
 
-			button_icon_zoom = {
-				parentanchor = right|vcenter
-				position = { -8 0 }
-				size = { 30 30 }
-				tooltip = "FLEET_ALMANAC_ZOOM"
-				onclick = "[MilitaryFormation.ZoomToMapMarkerPosition]"
+				button_icon_zoom = {
+					parentanchor = vcenter
+					size = { 28 28 }
+					onclick = "[MilitaryFormation.ZoomToMapMarkerPosition]"
+					using = tooltip_ne
+					tooltip = "ZOOM_TO_MILITARY_FORMATION"
+				}
 			}
 		}
 
 		flowcontainer = {
-			visible = "[GetVariableSystem.Exists(Concatenate('fleet_almanac_fleet_', MilitaryFormation.GetIDString))]"
 			parentanchor = hcenter
 			direction = vertical
-			spacing = 2
-			margin = { 0 5 }
-			datacontext = "[MilitaryFormation.GetShipList]"
-			datamodel = "[ShipList.GetShips]"
 
-			item = {
-				fleet_almanac_ship_row = {
-					blockoverride "second_column" {
-						textbox = {
-							parentanchor = vcenter
-							position = { 295 0 }
-							autoresize = yes
-							max_width = 150
-							elide = right
-							align = nobaseline
-							using = fontsize_small
-							raw_text = "[Ship.GetTemplate.GetNameNoFormatting]"
+			### Ship cards (fleet_almanac_ship_item) in two columns, separated by ship group - no nested dropdowns
+			flowcontainer = {
+				visible = "[GetVariableSystem.Exists(Concatenate('fleet_almanac_fleet_', MilitaryFormation.GetIDString))]"
+				datacontext = "[MilitaryFormation.GetShipList]"
+				parentanchor = hcenter
+				direction = vertical
+				ignoreinvisible = yes
+				margin = { 0 5 }
+				spacing = 5
+				datamodel = "[GetShipGroups]"
+
+				item = {
+					flowcontainer = {
+						visible = "[NotZero(ShipList.GetNumShipsOfGroup(ShipGroup.Self))]"
+						parentanchor = hcenter
+						direction = vertical
+						spacing = 3
+
+						### Group separator: icon + "Capital Ships: 3"
+						widget = {
+							parentanchor = hcenter
+							size = { 520 30 }
+
+							background = {
+								using = dark_area
+							}
+
+							flowcontainer = {
+								parentanchor = vcenter
+								position = { 10 0 }
+								spacing = 5
+
+								icon = {
+									parentanchor = vcenter
+									size = { 24 24 }
+									texture = "[ShipGroup.GetIcon]"
+								}
+
+								textbox = {
+									parentanchor = vcenter
+									autoresize = yes
+									align = nobaseline
+									text = "FLEET_ALMANAC_GROUP"
+								}
+							}
+						}
+
+						fixedgridbox = {
+							parentanchor = hcenter
+							addcolumn = 260
+							addrow = 105
+							flipdirection = yes
+							datamodel_wrap = 2
+							datamodel = "[ShipList.GetShipsOfGroup(ShipGroup.Self)]"
+
+							item = {
+								widget = {
+									size = { 260 105 }
+
+									fleet_almanac_ship_item = {
+										parentanchor = center
+
+										blockoverride "ship_item_size" {
+											size = { 250 100 }
+										}
+									}
+								}
+							}
 						}
 					}
 				}
@@ -530,7 +581,7 @@ $content = Lines @'
 		}
 	}
 
-	### One ship: silhouette, name, fleet (or template), HP; vanilla ship tooltip
+	### One ship: silhouette, name, fleet, HP; vanilla ship tooltip
 	type fleet_almanac_ship_row = button {
 		size = { 530 34 }
 		using = default_button
@@ -556,7 +607,7 @@ $content = Lines @'
 			parentanchor = vcenter
 			position = { 90 0 }
 			autoresize = yes
-			max_width = 200
+			max_width = 165
 			elide = right
 			align = nobaseline
 			raw_text = "[JoinText(Nbsp, AddLocalizationIf(Ship.IsFlagship, '@flagship!'), Ship.GetNameNoFormatting)]"
@@ -565,9 +616,9 @@ $content = Lines @'
 		block "second_column" {
 			textbox = {
 				parentanchor = vcenter
-				position = { 295 0 }
+				position = { 262 0 }
 				autoresize = yes
-				max_width = 150
+				max_width = 180
 				elide = right
 				align = nobaseline
 				using = fontsize_small
@@ -640,6 +691,47 @@ foreach ($s in $content) {
 $content = $contentList
 "land strategic regions: $($regions.Count)"
 
+
+# Copy of vanilla ship_item (game/gui/combat_unit_types.gui) as fleet_almanac_ship_item, without the retrofit / cancel retrofit buttons
+function Get-BlockEnd($arr, $startIdx) {
+	$depth = 0
+	for ($i = $startIdx; $i -lt $arr.Count; $i++) {
+		$x = ($arr[$i] -replace '"[^"]*"', '') -replace '#.*$', ''
+		$depth += ([regex]::Matches($x, '\{')).Count - ([regex]::Matches($x, '\}')).Count
+		if ($depth -eq 0) { return $i }
+	}
+	throw "Unbalanced block starting at line $($startIdx + 1)"
+}
+
+$cu = [IO.File]::ReadAllLines("$game\combat_unit_types.gui", $utf8)
+$siStart = -1
+for ($i = 0; $i -lt $cu.Count; $i++) { if ($cu[$i].Trim() -eq 'type ship_item = widget {') { $siStart = $i; break } }
+if ($siStart -lt 0) { throw 'type ship_item not found in combat_unit_types.gui' }
+$siEnd = Get-BlockEnd $cu $siStart
+$si = New-Object System.Collections.Generic.List[string]
+$si.AddRange([string[]]$cu[$siStart..$siEnd])
+
+$rIdx = -1
+for ($i = 0; $i -lt $si.Count; $i++) { if ($si[$i].Trim() -eq 'visible = "[Or(Ship.IsOutdated, Ship.IsToRetrofit)]"') { $rIdx = $i; break } }
+if ($rIdx -lt 1 -or $si[$rIdx - 1].Trim() -ne 'hbox = {') { throw 'Retrofit button hbox not found in ship_item' }
+$rEnd = Get-BlockEnd $si ($rIdx - 1)
+$si.RemoveRange($rIdx - 1, $rEnd - ($rIdx - 1) + 1)
+if (@($si | Where-Object { $_ -match 'retrofit_ship_button' }).Count -gt 0) { throw 'Retrofit buttons still present in ship_item copy' }
+$si[0] = $si[0].Replace('type ship_item = widget {', 'type fleet_almanac_ship_item = widget {')
+
+# @constants are file-local in vanilla: replace them with their values
+$tokens = [regex]::Matches((($si | ForEach-Object { $_ -replace '"[^"]*"', '' }) -join "`n"), '@[A-Za-z_][A-Za-z0-9_]*') | ForEach-Object { $_.Value } | Sort-Object -Unique
+foreach ($v in $tokens) {
+	$def = $cu | Where-Object { $_ -match ('^\s*' + [regex]::Escape($v) + '\s*=\s*[^\s#]+') } | Select-Object -First 1
+	if (-not $def) { throw "Constant $v not defined in combat_unit_types.gui" }
+	$val = [regex]::Match($def, '=\s*([^\s#]+)').Groups[1].Value
+	for ($i = 0; $i -lt $si.Count; $i++) { $si[$i] = $si[$i].Replace($v, $val) }
+}
+
+$content.Add('')
+$content.Add('	### Copy of vanilla ship_item (game/gui/combat_unit_types.gui) without the retrofit / cancel retrofit buttons')
+foreach ($x in $si) { $content.Add($x) }
+"ship_item copied: $($si.Count) lines, constants replaced: $($tokens -join ' ')"
 
 # country_panel copy (lines 90-377) with the tab bar swapped, 6th tab overrides and the Almanac content slot
 $panel = New-Object System.Collections.Generic.List[string]
