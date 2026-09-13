@@ -1,6 +1,6 @@
 {
 	"name": "Fleet Almanac",
-	"id": "com.github.scuzzar.fleet_almanac",
+	"id": "fleet_almanac",
 	"version": "1.0.0",
 	"picture": "thumbnail.png",
 	"supported_game_version": "1.13.*",
