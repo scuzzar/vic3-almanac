@@ -7,6 +7,8 @@ A lean UI mod for **Victoria 3** (1.13.x) that adds an **Almanac** tab to the co
 
 The mod is purely cosmetic: no scripted effects, nothing is written to the save game.
 
+> This mod was developed with extensive AI assistance (Claude by Anthropic).
+
 ## Structure
 
 | Path | Purpose |
