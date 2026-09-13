@@ -31,22 +31,22 @@ function Lines($s) { return ,($s -split "`r?`n") }
 
 $header = Lines @'
 # Fleet Almanac
-# Adds an "Almanac" tab behind "Interactions" in the country panel of other countries.
+# Adds an "Almanac" tab to the country panel of every country (other countries and the player's own).
 # Contains generated copies of vanilla types (Victoria 3 1.13.11) - regenerate after game updates:
 #   country_panel (game/gui/country_panel.gui)   -> overridden: uses fleet_almanac_tab_buttons, adds the Almanac content
 #   tab_buttons   (game/gui/shared/tab_bars.gui) -> copied as fleet_almanac_tab_buttons with a 6th tab (vanilla tab_buttons untouched)
-#   ship_item     (game/gui/combat_unit_types.gui) -> copied as fleet_almanac_ship_item without the retrofit buttons
+#   generated lists: land strategic regions (common/strategic_regions), ship modification slots (common/ship_modification_slots)
 # This file must load BEFORE country_panel.gui (00_ prefix): the first type definition wins.
 '@
 
 $templates = Lines @'
 ### Vanilla information_tab_visibility, extended so the Information tab also hides while the Almanac tab is open
 template fleet_almanac_information_tab_visibility {
-	visible = "[Or( And( Country.IsLocalPlayer, Not(Or(InformationPanel.IsTabSelected('diplomacy'), InformationPanel.IsTabSelected('modifiers')))), And( Country.IsAIOrOtherPlayer, Not(Or(Or(Or(InformationPanel.IsTabSelected('politics'), InformationPanel.IsTabSelected('diplomacy')), InformationPanel.IsTabSelected('interactions')), InformationPanel.IsTabSelected('fleet_almanac')))))]"
+	visible = "[Or( And( Country.IsLocalPlayer, Not(Or(Or(InformationPanel.IsTabSelected('diplomacy'), InformationPanel.IsTabSelected('modifiers')), InformationPanel.IsTabSelected('fleet_almanac')))), And( Country.IsAIOrOtherPlayer, Not(Or(Or(Or(InformationPanel.IsTabSelected('politics'), InformationPanel.IsTabSelected('diplomacy')), InformationPanel.IsTabSelected('interactions')), InformationPanel.IsTabSelected('fleet_almanac')))))]"
 }
 
 template fleet_almanac_information_tab_visibility_not {
-	visible = "[Not( Or( And( Country.IsLocalPlayer, Not(Or(InformationPanel.IsTabSelected('diplomacy'), InformationPanel.IsTabSelected('modifiers')))), And( Country.IsAIOrOtherPlayer, Not(Or(Or(Or(InformationPanel.IsTabSelected('politics'), InformationPanel.IsTabSelected('diplomacy')), InformationPanel.IsTabSelected('interactions')), InformationPanel.IsTabSelected('fleet_almanac'))))))]"
+	visible = "[Not( Or( And( Country.IsLocalPlayer, Not(Or(Or(InformationPanel.IsTabSelected('diplomacy'), InformationPanel.IsTabSelected('modifiers')), InformationPanel.IsTabSelected('fleet_almanac')))), And( Country.IsAIOrOtherPlayer, Not(Or(Or(Or(InformationPanel.IsTabSelected('politics'), InformationPanel.IsTabSelected('diplomacy')), InformationPanel.IsTabSelected('interactions')), InformationPanel.IsTabSelected('fleet_almanac'))))))]"
 }
 '@
 
@@ -110,10 +110,10 @@ $sixthOverrides = Lines @'
 					onclick = "[InformationPanel.SelectTab('fleet_almanac')]"
 				}
 				blockoverride "sixth_button_visibility" {
-					visible = "[And(Country.IsAIOrOtherPlayer,InformationPanel.IsTabSelected('fleet_almanac'))]"
+					visible = "[InformationPanel.IsTabSelected('fleet_almanac')]"
 				}
 				blockoverride "sixth_button_visibility_checked" {
-					visible = "[And(Country.IsAIOrOtherPlayer,Not(InformationPanel.IsTabSelected('fleet_almanac')))]"
+					visible = "[Not(InformationPanel.IsTabSelected('fleet_almanac'))]"
 				}
 				blockoverride "sixth_button_selected" {
 					text = "FLEET_ALMANAC_TAB_SELECTED"
@@ -123,7 +123,7 @@ $sixthOverrides = Lines @'
 $slot = Lines @'
 
 				fleet_almanac_content = {
-					visible = "[And(Country.IsAIOrOtherPlayer,InformationPanel.IsTabSelected('fleet_almanac'))]"
+					visible = "[InformationPanel.IsTabSelected('fleet_almanac')]"
 					using = default_content_fade
 				}
 '@
@@ -162,7 +162,7 @@ $content = Lines @'
 			datamodel = "[GetShipGroups]"
 
 			item = {
-				fleet_almanac_ship_group = {}
+				fleet_almanac_ship_group = { datacontext = "[Country.GetShipList]" }
 			}
 		}
 
@@ -304,51 +304,33 @@ $content = Lines @'
 		}
 	}
 
-	### One ship group: header (click = show/hide ships), templates, optional ship list
+	### One ship group of a ship list (country or fleet - set the ShipList as datacontext where it is used):
+	### header, then one line per ship template
 	type fleet_almanac_ship_group = flowcontainer {
-		datacontext = "[Country.GetShipList]"
 		visible = "[NotZero(ShipList.GetNumShipsOfGroup(ShipGroup.Self))]"
+		parentanchor = hcenter
 		direction = vertical
-		minimumsize = { @panel_width -1 }
+		minimumsize = { 520 -1 }
+		maximumsize = { 520 -1 }
+		spacing = 2
+		margin_bottom = 5
 
 		background = {
 			using = entry_bg
 		}
 
+		### Group header: icon + "Capital Ships: 10"
 		widget = {
-			size = { @panel_width 40 }
-
-			button = {
-				size = { 100% 100% }
-				using = default_button
-				tooltip = "FLEET_ALMANAC_TOGGLE_SHIPS"
-				onclick = "[GetVariableSystem.Toggle(Concatenate('fleet_almanac_group_', ShipGroup.GetKey))]"
-			}
+			size = { 520 34 }
 
 			flowcontainer = {
 				parentanchor = vcenter
-				position = { 8 0 }
+				position = { 10 0 }
 				spacing = 5
-
-				button = {
-					visible = "[Not(GetVariableSystem.Exists(Concatenate('fleet_almanac_group_', ShipGroup.GetKey)))]"
-					parentanchor = vcenter
-					size = { 25 25 }
-					using = expand_arrow
-					alwaystransparent = yes
-				}
-
-				button = {
-					visible = "[GetVariableSystem.Exists(Concatenate('fleet_almanac_group_', ShipGroup.GetKey))]"
-					parentanchor = vcenter
-					size = { 25 25 }
-					using = expand_arrow_expanded
-					alwaystransparent = yes
-				}
 
 				icon = {
 					parentanchor = vcenter
-					size = { 30 30 }
+					size = { 28 28 }
 					texture = "[ShipGroup.GetIcon]"
 				}
 
@@ -362,35 +344,231 @@ $content = Lines @'
 			}
 		}
 
+		### One line per ship template of this group
 		flowcontainer = {
-			datacontext = "[ShipList.GetFilterOfGroup(ShipGroup.Self)]"
-			datamodel = "[ShipList.GetShipTemplatesOfGroup(ShipGroup.Self)]"
-			margin = { 8 5 }
-			spacing = 5
-			wrap_count = 4
-
-			item = {
-				compact_ship_template = {
-					size = { 126 40 }
-				}
-			}
-		}
-
-		flowcontainer = {
-			visible = "[GetVariableSystem.Exists(Concatenate('fleet_almanac_group_', ShipGroup.GetKey))]"
 			parentanchor = hcenter
 			direction = vertical
 			spacing = 2
-			margin = { 0 5 }
-			datamodel = "[ShipList.GetShipsOfGroup(ShipGroup.Self)]"
+			datamodel = "[ShipList.GetShipTemplatesOfGroup(ShipGroup.Self)]"
 
 			item = {
-				fleet_almanac_ship_row = {}
+				fleet_almanac_template_line = {}
 			}
 		}
 	}
 
-	### One fleet in one line (click = show/hide ship cards): flag, name + status, ships per ship group, open fleet button
+	### One ship template: number of ships (+ under construction) with outdated marker below, type silhouette, ship type + template name,
+	### modifications by slot (fixed order), defense (armor), offense (hull damage) - values as in the vanilla ship building menu
+	type fleet_almanac_template_line = widget {
+		size = { 510 40 }
+
+		tooltipwidget = {
+			FancyTooltip_ShipTemplate = {}
+		}
+
+		background = {
+			using = dark_area
+			alpha = 0.3
+		}
+
+		flowcontainer = {
+			parentanchor = vcenter
+			position = { 5 0 }
+			spacing = 6
+
+			### Number of ships, below it a marker if ships of this template are outdated
+			flowcontainer = {
+				parentanchor = vcenter
+				direction = vertical
+				ignoreinvisible = yes
+				min_width = 34
+
+				textbox = {
+					parentanchor = hcenter
+					autoresize = yes
+					min_width = 30
+					align = hcenter|nobaseline
+					using = fontsize_small
+					text = "FLEET_SHIP_TEMPLATE_NUMBER"
+
+					background = {
+						using = dark_area
+						alpha = 0.5
+						margin = { -2 -2 }
+					}
+				}
+
+				### One copy per outdated ship of this template, stacked (spacing = -height): shown once or not at all
+				flowcontainer = {
+					parentanchor = hcenter
+					direction = vertical
+					spacing = -16
+					ignoreinvisible = yes
+					datamodel = "[ShipList.GetShipsOfType(ShipTemplate.GetType.Self)]"
+
+					tooltipwidget = {
+						fleet_almanac_outdated_ships_tooltip = {
+							blockoverride "header_text" {
+								text = "FLEET_ALMANAC_TEMPLATE_OUTDATED"
+							}
+
+							blockoverride "ships_datamodel" {
+								datamodel = "[ShipList.GetShipsOfType(ShipTemplate.GetType.Self)]"
+							}
+
+							blockoverride "ship_filter" {
+								visible = "[And(Ship.IsOutdated, ObjectsEqual(Ship.GetTemplate.Self, ShipTemplate.Self))]"
+							}
+						}
+					}
+
+					item = {
+						icon = {
+							visible = "[And(Ship.IsOutdated, ObjectsEqual(Ship.GetTemplate.Self, ShipTemplate.Self))]"
+							size = { 16 16 }
+							texture = "gfx/interface/icons/formation_order_icons/upgrade.dds"
+						}
+					}
+				}
+			}
+
+			ship_type_silhouette = {
+				datacontext = "[ShipTemplate.GetType]"
+				parentanchor = vcenter
+				size = { 60 26 }
+
+				blockoverride "fittype" {
+					fittype = start
+				}
+			}
+
+			flowcontainer = {
+				parentanchor = vcenter
+				direction = vertical
+
+				textbox = {
+					autoresize = yes
+					max_width = 140
+					elide = right
+					align = nobaseline
+					text = "[ShipTemplate.GetType.GetNameNoFormatting]"
+				}
+
+				textbox = {
+					autoresize = yes
+					max_width = 140
+					elide = right
+					align = nobaseline
+					using = fontsize_small
+					text = "[ShipTemplate.GetNameNoFormatting]"
+				}
+			}
+		}
+
+		### Modifications, left-aligned, grouped by slot in a fixed order (generated from common/ship_modification_slots, utility slots left out)
+		flowcontainer = {
+			parentanchor = vcenter
+			position = { 260 0 }
+			ignoreinvisible = yes
+
+			@@MOD_SLOTS@@
+		}
+
+		flowcontainer = {
+			parentanchor = right|vcenter
+			position = { -8 0 }
+			spacing = 8
+
+			textbox = {
+				parentanchor = vcenter
+				autoresize = yes
+				min_width = 40
+				align = right|nobaseline
+				raw_text = "@ship_armor! #v [ShipTemplate.GetModifier.GetValueFor('ship_armor_add')|0]#!"
+			}
+
+			textbox = {
+				parentanchor = vcenter
+				autoresize = yes
+				min_width = 40
+				align = right|nobaseline
+				raw_text = "@hull_attack_damage! #v [ShipTemplate.GetModifier.GetValueFor('ship_hull_damage_add')|0]#!"
+			}
+		}
+	}
+
+	### Tooltip: header text, then every outdated ship with its current equipment
+	### (modifications by slot, same order as the template lines), armor and hull damage
+	type fleet_almanac_outdated_ships_tooltip = RegularTooltip {
+		blockoverride "tooltip_content_after" {
+			custom_tooltip_textbox = {
+				block "header_text" {
+					text = "FLEET_ALMANAC_FLEET_OUTDATED"
+				}
+			}
+
+			tooltip_divider = {}
+
+			flowcontainer = {
+				direction = vertical
+				spacing = 3
+				ignoreinvisible = yes
+
+				block "ships_datamodel" {
+					datamodel = "[ShipList.GetShips]"
+				}
+
+				item = {
+					flowcontainer = {
+						block "ship_filter" {
+							visible = "[Ship.IsOutdated]"
+						}
+
+						spacing = 6
+
+						DefaultTooltipTextBox = {
+							parentanchor = vcenter
+							min_width = 150
+							max_width = 150
+							elide = right
+							fonttintcolor = "[TooltipInfo.GetTintColor]"
+							text = "[Ship.GetNameNoFormatting]"
+						}
+
+						widget = {
+							parentanchor = vcenter
+							size = { 130 22 }
+
+							flowcontainer = {
+								parentanchor = vcenter
+								ignoreinvisible = yes
+
+								@@MOD_SLOTS_SHIP@@
+							}
+						}
+
+						DefaultTooltipTextBox = {
+							parentanchor = vcenter
+							min_width = 45
+							align = right|nobaseline
+							fonttintcolor = "[TooltipInfo.GetTintColor]"
+							raw_text = "@ship_armor! #v [Ship.GetArmor|0]#!"
+						}
+
+						DefaultTooltipTextBox = {
+							parentanchor = vcenter
+							min_width = 45
+							align = right|nobaseline
+							fonttintcolor = "[TooltipInfo.GetTintColor]"
+							raw_text = "@hull_attack_damage! #v [Ship.GetHullDamage|0]#!"
+						}
+					}
+				}
+			}
+		}
+	}
+
+	### One fleet in one line (click = show/hide ship breakdown): flag, name + status, ships per ship group, outdated ships, open fleet button
 	type fleet_almanac_fleet_item = flowcontainer {
 		parentanchor = hcenter
 		direction = vertical
@@ -502,6 +680,34 @@ $content = Lines @'
 					}
 				}
 
+				### Outdated ships in the fleet (tooltip lists them with their current equipment)
+				flowcontainer = {
+					visible = "[ShipList.HasAnyShipOutdated]"
+					parentanchor = vcenter
+					spacing = 2
+
+					tooltipwidget = {
+						fleet_almanac_outdated_ships_tooltip = {
+							blockoverride "header_text" {
+								text = "FLEET_ALMANAC_FLEET_OUTDATED"
+							}
+						}
+					}
+
+					icon = {
+						parentanchor = vcenter
+						size = { 22 22 }
+						texture = "gfx/interface/icons/formation_order_icons/upgrade.dds"
+					}
+
+					textbox = {
+						parentanchor = vcenter
+						autoresize = yes
+						align = nobaseline
+						raw_text = "#v [ShipList.GetNumShipsOutdated]#!"
+					}
+				}
+
 				button_icon_goto = {
 					parentanchor = vcenter
 					size = { 28 28 }
@@ -516,7 +722,7 @@ $content = Lines @'
 			parentanchor = hcenter
 			direction = vertical
 
-			### Ship cards (fleet_almanac_ship_item) in two columns, separated by ship group - no nested dropdowns
+			### Ship breakdown of the fleet: same layout as the Ships section (ship groups, types, templates)
 			flowcontainer = {
 				visible = "[GetVariableSystem.Exists(Concatenate('fleet_almanac_fleet_', MilitaryFormation.GetIDString))]"
 				datacontext = "[MilitaryFormation.GetShipList]"
@@ -524,126 +730,16 @@ $content = Lines @'
 				direction = vertical
 				ignoreinvisible = yes
 				margin = { 0 5 }
-				spacing = 5
+				spacing = 3
 				datamodel = "[GetShipGroups]"
 
 				item = {
-					flowcontainer = {
-						visible = "[NotZero(ShipList.GetNumShipsOfGroup(ShipGroup.Self))]"
-						parentanchor = hcenter
-						direction = vertical
-						spacing = 3
-
-						### Group separator: icon + "Capital Ships: 3"
-						widget = {
-							parentanchor = hcenter
-							size = { 520 30 }
-
-							background = {
-								using = dark_area
-							}
-
-							flowcontainer = {
-								parentanchor = vcenter
-								position = { 10 0 }
-								spacing = 5
-
-								icon = {
-									parentanchor = vcenter
-									size = { 24 24 }
-									texture = "[ShipGroup.GetIcon]"
-								}
-
-								textbox = {
-									parentanchor = vcenter
-									autoresize = yes
-									align = nobaseline
-									text = "FLEET_ALMANAC_GROUP"
-								}
-							}
-						}
-
-						fixedgridbox = {
-							parentanchor = hcenter
-							addcolumn = 260
-							addrow = 105
-							flipdirection = yes
-							datamodel_wrap = 2
-							datamodel = "[ShipList.GetShipsOfGroup(ShipGroup.Self)]"
-
-							item = {
-								widget = {
-									size = { 260 105 }
-
-									fleet_almanac_ship_item = {
-										parentanchor = center
-
-										blockoverride "ship_item_size" {
-											size = { 250 100 }
-										}
-									}
-								}
-							}
-						}
-					}
+					fleet_almanac_ship_group = {}
 				}
 			}
 		}
 	}
 
-	### One ship: silhouette, name, fleet, HP; vanilla ship tooltip
-	type fleet_almanac_ship_row = button {
-		size = { 530 34 }
-		using = default_button
-		onclick = "[InformationPanelBar.OpenShipPanel(Ship.Self)]"
-
-		tooltipwidget = {
-			FancyTooltip_Ship = {}
-		}
-
-		widget = {
-			parentanchor = vcenter
-			position = { 5 0 }
-			size = { 80 28 }
-			alwaystransparent = yes
-
-			background = {
-				fittype = center
-				texture = "[Ship.GetType.GetProfileTexture]"
-			}
-		}
-
-		textbox = {
-			parentanchor = vcenter
-			position = { 90 0 }
-			autoresize = yes
-			max_width = 165
-			elide = right
-			align = nobaseline
-			raw_text = "[JoinText(Nbsp, AddLocalizationIf(Ship.IsFlagship, '@flagship!'), Ship.GetNameNoFormatting)]"
-		}
-
-		block "second_column" {
-			textbox = {
-				parentanchor = vcenter
-				position = { 262 0 }
-				autoresize = yes
-				max_width = 180
-				elide = right
-				align = nobaseline
-				using = fontsize_small
-				raw_text = "[Ship.GetFleet.GetNameNoFormatting]"
-			}
-		}
-
-		textbox = {
-			parentanchor = right|vcenter
-			position = { -10 0 }
-			autoresize = yes
-			align = right|nobaseline
-			text = "FLEET_ALMANAC_SHIP_HP"
-		}
-	}
 '@
 
 # Land strategic regions, read from the game files: a region counts as land if at least one of its states
@@ -702,46 +798,59 @@ $content = $contentList
 "land strategic regions: $($regions.Count)"
 
 
-# Copy of vanilla ship_item (game/gui/combat_unit_types.gui) as fleet_almanac_ship_item, without the retrofit / cancel retrofit buttons
-function Get-BlockEnd($arr, $startIdx) {
-	$depth = 0
-	for ($i = $startIdx; $i -lt $arr.Count; $i++) {
-		$x = ($arr[$i] -replace '"[^"]*"', '') -replace '#.*$', ''
-		$depth += ([regex]::Matches($x, '\{')).Count - ([regex]::Matches($x, '\}')).Count
-		if ($depth -eq 0) { return $i }
+# Ship modification slots in a fixed order (non-utility slots from common/ship_modification_slots):
+# one icon group per slot, replacing @@MOD_SLOTS@@ (ship template lines) and @@MOD_SLOTS_SHIP@@ (outdated ships tooltip)
+$slotDir = Join-Path (Split-Path $game -Parent) 'common\ship_modification_slots'
+$slots = New-Object System.Collections.Generic.List[string]
+foreach ($f in (Get-ChildItem $slotDir -Filter '*.txt' | Sort-Object Name)) {
+	foreach ($b in (Get-TopBlocks $f.FullName)) {
+		if ($b.Body -notmatch '\butility\s*=\s*yes\b') { $slots.Add($b.Key) }
 	}
-	throw "Unbalanced block starting at line $($startIdx + 1)"
+}
+if ($slots.Count -eq 0) { throw 'No non-utility ship modification slots found' }
+
+function New-SlotLines($datamodel, $iconSize) {
+	$res = New-Object System.Collections.Generic.List[string]
+	foreach ($s in $slots) {
+		$slotBlock = @"
+						flowcontainer = {
+							parentanchor = vcenter
+							spacing = 2
+							margin_right = 2
+							ignoreinvisible = yes
+							datamodel = "$datamodel"
+
+							item = {
+								icon = {
+									visible = "[ObjectsEqual(ShipModificationType.GetSlotType.Self, GetShipModificationSlotType('$s').Self)]"
+									size = { $iconSize $iconSize }
+									texture = "[ShipModificationType.GetIcon]"
+
+									tooltipwidget = {
+										FancyTooltip_ShipModificationType = {}
+									}
+								}
+							}
+						}
+"@
+		$res.AddRange([string[]]($slotBlock -split "`r?`n"))
+	}
+	return ,$res
 }
 
-$cu = [IO.File]::ReadAllLines("$game\combat_unit_types.gui", $utf8)
-$siStart = -1
-for ($i = 0; $i -lt $cu.Count; $i++) { if ($cu[$i].Trim() -eq 'type ship_item = widget {') { $siStart = $i; break } }
-if ($siStart -lt 0) { throw 'type ship_item not found in combat_unit_types.gui' }
-$siEnd = Get-BlockEnd $cu $siStart
-$si = New-Object System.Collections.Generic.List[string]
-$si.AddRange([string[]]$cu[$siStart..$siEnd])
-
-$rIdx = -1
-for ($i = 0; $i -lt $si.Count; $i++) { if ($si[$i].Trim() -eq 'visible = "[Or(Ship.IsOutdated, Ship.IsToRetrofit)]"') { $rIdx = $i; break } }
-if ($rIdx -lt 1 -or $si[$rIdx - 1].Trim() -ne 'hbox = {') { throw 'Retrofit button hbox not found in ship_item' }
-$rEnd = Get-BlockEnd $si ($rIdx - 1)
-$si.RemoveRange($rIdx - 1, $rEnd - ($rIdx - 1) + 1)
-if (@($si | Where-Object { $_ -match 'retrofit_ship_button' }).Count -gt 0) { throw 'Retrofit buttons still present in ship_item copy' }
-$si[0] = $si[0].Replace('type ship_item = widget {', 'type fleet_almanac_ship_item = widget {')
-
-# @constants are file-local in vanilla: replace them with their values
-$tokens = [regex]::Matches((($si | ForEach-Object { $_ -replace '"[^"]*"', '' }) -join "`n"), '@[A-Za-z_][A-Za-z0-9_]*') | ForEach-Object { $_.Value } | Sort-Object -Unique
-foreach ($v in $tokens) {
-	$def = $cu | Where-Object { $_ -match ('^\s*' + [regex]::Escape($v) + '\s*=\s*[^\s#]+') } | Select-Object -First 1
-	if (-not $def) { throw "Constant $v not defined in combat_unit_types.gui" }
-	$val = [regex]::Match($def, '=\s*([^\s#]+)').Groups[1].Value
-	for ($i = 0; $i -lt $si.Count; $i++) { $si[$i] = $si[$i].Replace($v, $val) }
+$slotReplacements = @{
+	'@@MOD_SLOTS@@'      = (New-SlotLines '[ShipTemplate.GetModifications]' 22)
+	'@@MOD_SLOTS_SHIP@@' = (New-SlotLines '[Ship.GetModifications]' 20)
 }
-
-$content.Add('')
-$content.Add('	### Copy of vanilla ship_item (game/gui/combat_unit_types.gui) without the retrofit / cancel retrofit buttons')
-foreach ($x in $si) { $content.Add($x) }
-"ship_item copied: $($si.Count) lines, constants replaced: $($tokens -join ' ')"
+$slotFound = @{}
+$slotContent = New-Object System.Collections.Generic.List[string]
+foreach ($x in $content) {
+	$t = $x.Trim()
+	if ($slotReplacements.ContainsKey($t)) { $slotFound[$t] = 1 + [int]$slotFound[$t]; $slotContent.AddRange([string[]]$slotReplacements[$t]) } else { $slotContent.Add($x) }
+}
+foreach ($k in $slotReplacements.Keys) { if ([int]$slotFound[$k] -ne 1) { throw "Expected exactly one $k placeholder, found $([int]$slotFound[$k])" } }
+$content = $slotContent
+"ship modification slots: $($slots -join ', ')"
 
 # country_panel copy (lines 90-377) with the tab bar swapped, 6th tab overrides and the Almanac content slot
 $panel = New-Object System.Collections.Generic.List[string]
