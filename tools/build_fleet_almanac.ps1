@@ -35,7 +35,7 @@ $header = Lines @'
 # Contains generated copies of vanilla types (Victoria 3 1.13.11) - regenerate after game updates:
 #   country_panel (game/gui/country_panel.gui)   -> overridden: uses fleet_almanac_tab_buttons, adds the Almanac content
 #   tab_buttons   (game/gui/shared/tab_bars.gui) -> copied as fleet_almanac_tab_buttons with a 6th tab (vanilla tab_buttons untouched)
-#   generated lists: land strategic regions (common/strategic_regions), ship modification slots (common/ship_modification_slots)
+#   generated lists: land and sea strategic regions (common/strategic_regions), ship modification slots (common/ship_modification_slots)
 # This file must load BEFORE country_panel.gui (00_ prefix): the first type definition wins.
 '@
 
@@ -131,6 +131,11 @@ $slot = Lines @'
 $content = Lines @'
 	### ALMANAC TAB CONTENT
 	type fleet_almanac_content = flowcontainer {
+		### Military map mode (fleets, HQs, naval missions) while the mouse is over the Almanac, like vanilla hover map modes
+		alwaystransparent = no
+		onmousehierarchyenter = "[SetTempMapModeByKey('mm_military')]"
+		onmousehierarchyleave = "[RemoveTempMapMode]"
+
 		parentanchor = hcenter
 		direction = vertical
 		spacing = 5
@@ -177,7 +182,7 @@ $content = Lines @'
 
 		@@REGION_GROUPS@@
 
-		### Fleets without a current HQ
+		### Fleets with neither a current HQ nor a sea node
 		flowcontainer = {
 			parentanchor = hcenter
 			direction = vertical
@@ -191,7 +196,7 @@ $content = Lines @'
 
 				item = {
 					fleet_almanac_region_header = {
-						visible = "[Not(MilitaryFormation.GetCurrentHQ.IsValid)]"
+						visible = "[And(Not(MilitaryFormation.GetCurrentHQ.IsValid), StringIsEmpty(MilitaryFormation.GetCurrentSeaNode.GetStateRegion.GetStrategicRegion.GetNameNoFormatting))]"
 
 						blockoverride "header_text" {
 							text = "FLEET_ALMANAC_NO_HQ_HEADER"
@@ -210,7 +215,7 @@ $content = Lines @'
 
 				item = {
 					flowcontainer = {
-						visible = "[Not(MilitaryFormation.GetCurrentHQ.IsValid)]"
+						visible = "[And(Not(MilitaryFormation.GetCurrentHQ.IsValid), StringIsEmpty(MilitaryFormation.GetCurrentSeaNode.GetStateRegion.GetStrategicRegion.GetNameNoFormatting))]"
 						direction = vertical
 
 						widget = {
@@ -224,7 +229,7 @@ $content = Lines @'
 		}
 	}
 
-	### Fleets whose current HQ lies in this strategic region ("Stationed at"), no spacing so empty regions take no room
+	### Fleets currently in this strategic region: stationed at an HQ there, or (without HQ) at a sea node of this sea region; no spacing so empty regions take no room
 	type fleet_almanac_region_group = flowcontainer {
 		parentanchor = hcenter
 		direction = vertical
@@ -240,7 +245,14 @@ $content = Lines @'
 
 			item = {
 				fleet_almanac_region_header = {
-					visible = "[And(MilitaryFormation.GetCurrentHQ.IsValid, ObjectsEqual(MilitaryFormation.GetCurrentHQ.GetStrategicRegion.Self, StrategicRegion.Self))]"
+					visible = "[Or(And(MilitaryFormation.GetCurrentHQ.IsValid, ObjectsEqual(MilitaryFormation.GetCurrentHQ.GetStrategicRegion.Self, StrategicRegion.Self)), And(Not(MilitaryFormation.GetCurrentHQ.IsValid), ObjectsEqual(MilitaryFormation.GetCurrentSeaNode.GetStateRegion.GetStrategicRegion.Self, StrategicRegion.Self)))]"
+
+					
+blockoverride "header_text" {
+						
+text = "[SelectLocalization(MilitaryFormation.GetCurrentHQ.IsValid, 'FLEET_ALMANAC_REGION_HEADER', 'FLEET_ALMANAC_SEA_HEADER')]"
+					
+}
 				}
 			}
 		}
@@ -253,7 +265,7 @@ $content = Lines @'
 
 			item = {
 				flowcontainer = {
-					visible = "[And(MilitaryFormation.GetCurrentHQ.IsValid, ObjectsEqual(MilitaryFormation.GetCurrentHQ.GetStrategicRegion.Self, StrategicRegion.Self))]"
+					visible = "[Or(And(MilitaryFormation.GetCurrentHQ.IsValid, ObjectsEqual(MilitaryFormation.GetCurrentHQ.GetStrategicRegion.Self, StrategicRegion.Self)), And(Not(MilitaryFormation.GetCurrentHQ.IsValid), ObjectsEqual(MilitaryFormation.GetCurrentSeaNode.GetStateRegion.GetStrategicRegion.Self, StrategicRegion.Self)))]"
 					direction = vertical
 
 					widget = {
@@ -742,7 +754,7 @@ $content = Lines @'
 
 '@
 
-# Land strategic regions, read from the game files: a region counts as land if at least one of its states
+# Strategic regions, read from the game files (land first, then sea): a region counts as land if at least one of its states
 # is a land state (has subsistence_building - the sea states in map_data/state_regions have none)
 function Get-TopBlocks($path) {
 	$text = (([IO.File]::ReadAllLines($path, $utf8)) | ForEach-Object { $_ -replace '#.*$', '' }) -join "`n"
@@ -768,18 +780,21 @@ foreach ($f in (Get-ChildItem "$gameRoot\map_data\state_regions" -Filter '*.txt'
 if ($landStates.Count -eq 0) { throw 'No land states found' }
 
 $regions = New-Object System.Collections.Generic.List[string]
+$waterRegions = New-Object System.Collections.Generic.List[string]
 foreach ($f in (Get-ChildItem "$gameRoot\common\strategic_regions" -Filter '*.txt' | Sort-Object Name)) {
 	foreach ($b in (Get-TopBlocks $f.FullName)) {
 		if ($b.Body -match '(?s)states\s*=\s*\{([^}]*)\}') {
 			$stateKeys = [regex]::Matches($Matches[1], '[A-Za-z_][A-Za-z0-9_]*') | ForEach-Object { $_.Value }
-			if (@($stateKeys | Where-Object { $landStates.ContainsKey($_) }).Count -gt 0) { $regions.Add($b.Key) }
+			if (@($stateKeys | Where-Object { $landStates.ContainsKey($_) }).Count -gt 0) { $regions.Add($b.Key) } else { $waterRegions.Add($b.Key) }
 		}
 	}
 }
 if ($regions.Count -eq 0) { throw 'No land strategic regions found' }
+$landCount = $regions.Count
+$regions.AddRange($waterRegions)
 
 $regionLines = New-Object System.Collections.Generic.List[string]
-$regionLines.Add("		### Land strategic regions ($($regions.Count), generated from game/common/strategic_regions): one group per region")
+$regionLines.Add("		### Strategic regions ($landCount land + $($waterRegions.Count) sea, generated from game/common/strategic_regions): one group per region")
 $regionLines.Add('		flowcontainer = {')
 $regionLines.Add('			parentanchor = hcenter')
 $regionLines.Add('			direction = vertical')
@@ -795,7 +810,7 @@ foreach ($s in $content) {
 	if ($s.Trim() -eq '@@REGION_GROUPS@@') { foreach ($x in $regionLines) { $contentList.Add($x) } } else { $contentList.Add($s) }
 }
 $content = $contentList
-"land strategic regions: $($regions.Count)"
+"strategic regions: $landCount land + $($waterRegions.Count) sea"
 
 
 # Ship modification slots in a fixed order (non-utility slots from common/ship_modification_slots):

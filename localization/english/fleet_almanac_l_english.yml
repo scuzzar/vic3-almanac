@@ -9,4 +9,5 @@
  FLEET_ALMANAC_TEMPLATE_OUTDATED: "Outdated $SHIPS_CONCEPT$ of #v [ShipTemplate.GetNameNoFormatting]#! (not yet retrofitted to the current $SHIP_TEMPLATE_SHORT_CONCEPT$)"
  FLEET_ALMANAC_FLEETS_HEADER: "$concept_fleets$ ([GetDataModelSize(Country.GetMilitaryFormationsFleet)])"
  FLEET_ALMANAC_REGION_HEADER: "Stationed at #v [StrategicRegion.GetNameNoFormatting]#!"
- FLEET_ALMANAC_NO_HQ_HEADER: "Without current HQ"
+ FLEET_ALMANAC_SEA_HEADER: "At #v [StrategicRegion.GetNameNoFormatting]#!"
+ FLEET_ALMANAC_NO_HQ_HEADER: "Unknown location"
