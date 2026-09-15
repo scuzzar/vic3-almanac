@@ -1,6 +1,6 @@
 # Fleet Almanac – Projektnotizen für Claude
 
-UI-Mod für **Victoria 3 (1.14.x)**: fügt im Länderfenster jedes Landes (auch dem eigenen) einen Tab **„Almanac"** hinter „Interactions" hinzu – Übersicht über Schiffe und Flotten. Rein kosmetisch, keine Skript-Effekte, nichts im Spielstand.
+UI-Mod für **Victoria 3 (1.13.x, läuft auch auf der 1.14-Beta)** – `supported_game_version` bleibt `1.13.*`, bis 1.14 offiziell erscheint (kopierte Vanilla-Teile sind in 1.13.11 und 1.14.2 identisch): fügt im Länderfenster jedes Landes (auch dem eigenen) einen Tab **„Almanac"** hinter „Interactions" hinzu – Übersicht über Schiffe und Flotten. Rein kosmetisch, keine Skript-Effekte, nichts im Spielstand.
 
 Nutzer spricht Deutsch; Antworten auf Deutsch. Code-Kommentare, README, Commit-Messages und Mod-Texte auf Englisch.
 

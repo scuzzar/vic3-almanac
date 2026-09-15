@@ -1,6 +1,6 @@
 # Fleet Almanac
 
-A lean UI mod for **Victoria 3** (1.14.x) that adds an **Almanac** tab to the country panel of every country (including your own), giving an overview of its navy:
+A lean UI mod for **Victoria 3** (1.13, also works on the 1.14 beta) that adds an **Almanac** tab to the country panel of every country (including your own), giving an overview of its navy:
 
 - **Unit types**: one line with the newest unlocked combat unit type of each land group (infantry, artillery, cavalry) as image and name, hover for the unit type tooltip
 - **Ships** by ship group, with one line per ship template (number of ships, type silhouette, ship type and template name, modifications sorted by slot, armor, hull damage); a marker below the number shows outdated ships of that template, hovering it lists them with their current equipment
