@@ -23,10 +23,10 @@ The mod is purely cosmetic: no scripted effects, nothing is written to the save 
 | Path | Purpose |
 |---|---|
 | `gui/00_fleet_almanac.gui` | Generated GUI file (do not edit by hand, see below) |
-| `localization/english`, `localization/german` | Texts |
+| `localization/<language>` | Texts in all 11 game languages (English and German written by hand, the others AI-assisted) |
 | `tools/build_fleet_almanac.ps1` | Build script that generates the GUI file |
 | `.metadata/metadata.json`, `.metadata/thumbnail.png` | Launcher metadata and thumbnail |
-| `docs/` | Screenshots for README and mod page |
+| `docs/` | Screenshots for README and mod page, mod page description (`mod_description.txt`) |
 
 ## Rebuilding after a game update
 

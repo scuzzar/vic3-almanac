@@ -1,0 +1,12 @@
+﻿l_turkish:
+ FLEET_ALMANAC_TAB: "Almanak"
+ FLEET_ALMANAC_TAB_SELECTED: "#bold Almanak#!"
+ FLEET_ALMANAC_TAB_TOOLTIP: "Filo Almanağı: tüm [Concept('concept_ship','$concept_ships$')] ve [Concept('concept_fleet','$concept_fleets$')] – [Country.GetName]"
+ FLEET_ALMANAC_SHIPS_HEADER: "$concept_ships$ ([Country.GetNumShips|0])"
+ FLEET_ALMANAC_NO_SHIPS: "[Concept('concept_ship','$concept_ships$')] yok – [Country.GetName]"
+ FLEET_ALMANAC_GROUP: "[ShipGroup.GetNameNoFormatting]: #v [ShipList.GetNumShipsOfGroup(ShipGroup.Self)]#!"
+ FLEET_ALMANAC_FLEET_OUTDATED: "$SHIP_TEMPLATE_SHORT_CONCEPT$ bakımından güncelliğini yitirmiş @ships! #v [ShipList.GetNumShipsOutdated]#! $SHIPS_CONCEPT$ mevcut"
+ FLEET_ALMANAC_TEMPLATE_OUTDATED: "#v [ShipTemplate.GetNameNoFormatting]#! için güncelliğini yitirmiş $SHIPS_CONCEPT$ (henüz güncel $SHIP_TEMPLATE_SHORT_CONCEPT$ ile donatılmadı)"
+ FLEET_ALMANAC_FLEETS_HEADER: "$concept_fleets$ ([GetDataModelSize(Country.GetMilitaryFormationsFleet)])"
+ FLEET_ALMANAC_MAIN_FLEETS: "Ana filolar"
+ FLEET_ALMANAC_SMALL_FLEETS: "Küçük filolar"

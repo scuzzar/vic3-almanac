@@ -1,0 +1,12 @@
+﻿l_korean:
+ FLEET_ALMANAC_TAB: "연감"
+ FLEET_ALMANAC_TAB_SELECTED: "#bold 연감#!"
+ FLEET_ALMANAC_TAB_TOOLTIP: "함대 연감: [Country.GetName]의 모든 [Concept('concept_ship','$concept_ships$')] 및 [Concept('concept_fleet','$concept_fleets$')]"
+ FLEET_ALMANAC_SHIPS_HEADER: "$concept_ships$ ([Country.GetNumShips|0])"
+ FLEET_ALMANAC_NO_SHIPS: "[Country.GetName] 내 [Concept('concept_ship','$concept_ships$')] 없음"
+ FLEET_ALMANAC_GROUP: "[ShipGroup.GetNameNoFormatting]: #v [ShipList.GetNumShipsOfGroup(ShipGroup.Self)]#!"
+ FLEET_ALMANAC_FLEET_OUTDATED: "구형 $SHIP_TEMPLATE_SHORT_CONCEPT$인 $SHIPS_CONCEPT$(이)가 @ships! #v [ShipList.GetNumShipsOutdated]#!척 있음"
+ FLEET_ALMANAC_TEMPLATE_OUTDATED: "#v [ShipTemplate.GetNameNoFormatting]#!의 구형 $SHIPS_CONCEPT$ (아직 현재 $SHIP_TEMPLATE_SHORT_CONCEPT$(으)로 개장되지 않음)"
+ FLEET_ALMANAC_FLEETS_HEADER: "$concept_fleets$ ([GetDataModelSize(Country.GetMilitaryFormationsFleet)])"
+ FLEET_ALMANAC_MAIN_FLEETS: "주력 함대"
+ FLEET_ALMANAC_SMALL_FLEETS: "소규모 함대"

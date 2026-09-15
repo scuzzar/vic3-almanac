@@ -1,0 +1,12 @@
+﻿l_braz_por:
+ FLEET_ALMANAC_TAB: "Almanaque"
+ FLEET_ALMANAC_TAB_SELECTED: "#bold Almanaque#!"
+ FLEET_ALMANAC_TAB_TOOLTIP: "Almanaque da Frota: todos os [Concept('concept_ship','$concept_ships$')] e [Concept('concept_fleet','$concept_fleets$')] – [Country.GetName]"
+ FLEET_ALMANAC_SHIPS_HEADER: "$concept_ships$ ([Country.GetNumShips|0])"
+ FLEET_ALMANAC_NO_SHIPS: "Sem [Concept('concept_ship','$concept_ships$')] – [Country.GetName]"
+ FLEET_ALMANAC_GROUP: "[ShipGroup.GetNameNoFormatting]: #v [ShipList.GetNumShipsOfGroup(ShipGroup.Self)]#!"
+ FLEET_ALMANAC_FLEET_OUTDATED: "Há @ships! #v [ShipList.GetNumShipsOutdated]#! $SHIPS_CONCEPT$ com um $SHIP_TEMPLATE_SHORT_CONCEPT$ obsoleto"
+ FLEET_ALMANAC_TEMPLATE_OUTDATED: "$SHIPS_CONCEPT$ obsoletos de #v [ShipTemplate.GetNameNoFormatting]#! (ainda não adaptados ao $SHIP_TEMPLATE_SHORT_CONCEPT$ atual)"
+ FLEET_ALMANAC_FLEETS_HEADER: "$concept_fleets$ ([GetDataModelSize(Country.GetMilitaryFormationsFleet)])"
+ FLEET_ALMANAC_MAIN_FLEETS: "Frotas principais"
+ FLEET_ALMANAC_SMALL_FLEETS: "Frotas pequenas"

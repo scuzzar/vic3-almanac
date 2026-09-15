@@ -1,0 +1,36 @@
+Fleet Almanac
+
+Thinking about taking on Great Britain? Better take a look at the Royal Navy first.
+How many capital ships are waiting for you, and have they already switched to dreadnoughts? Is their fleet modern or still waiting for a refit - and where is it right now?
+
+Fleet Almanac gives you the answers at a glance: it adds an "Almanac" tab to the country panel of every nation, including your own, with a compact overview of its navy.
+
+UNIT TYPES
+- The newest unlocked infantry, artillery and cavalry type of the nation at a glance, with the unit type tooltip
+
+SHIPS
+- Ships grouped into Capital Ships, Cruisers and Torpedo Craft
+- One line per ship template: number of ships (and ships under construction), ship type, template name, modifications, armor and damage
+- Modifications are always shown in the same order, so templates are easy to compare
+- A marker below the ship count shows outdated ships of a template; its tooltip lists every outdated ship with its actual equipment
+
+FLEETS
+- Main fleets first, small fleets (less than 5% of the navy or fewer than 3 ships) listed separately below
+- One compact line per fleet: name, status and current location, ships per group, outdated ships and a button to open the fleet
+- Expand a fleet to see the same ship template overview for that fleet
+
+MAP
+- While hovering the Almanac, the map switches to the military map mode (fleets, HQs, naval missions)
+
+COMPATIBILITY
+- User interface only: no gameplay changes, nothing is saved to your game
+- Safe to add or remove mid-game
+- Not required for multiplayer by other players
+- Overrides the country panel, so it may conflict with other mods that change the country panel
+- Built for Victoria 3 1.14
+
+Languages: English, German, French, Spanish, Brazilian Portuguese, Polish, Russian, Turkish, Japanese, Korean, Simplified Chinese
+(All translations except English and German were created with AI assistance - corrections are welcome.)
+
+This mod was developed with extensive AI assistance (Claude by Anthropic).
+Source: https://github.com/scuzzar/vic3-almanac

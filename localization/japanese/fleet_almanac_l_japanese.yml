@@ -1,0 +1,12 @@
+﻿l_japanese:
+ FLEET_ALMANAC_TAB: "年鑑"
+ FLEET_ALMANAC_TAB_SELECTED: "#bold 年鑑#!"
+ FLEET_ALMANAC_TAB_TOOLTIP: "艦隊年鑑: [Country.GetName]の全[Concept('concept_ship','$concept_ships$')]と[Concept('concept_fleet','$concept_fleets$')]"
+ FLEET_ALMANAC_SHIPS_HEADER: "$concept_ships$ ([Country.GetNumShips|0])"
+ FLEET_ALMANAC_NO_SHIPS: "[Country.GetName]に[Concept('concept_ship','$concept_ships$')]はありません"
+ FLEET_ALMANAC_GROUP: "[ShipGroup.GetNameNoFormatting]: #v [ShipList.GetNumShipsOfGroup(ShipGroup.Self)]#!"
+ FLEET_ALMANAC_FLEET_OUTDATED: "@ships! #v [ShipList.GetNumShipsOutdated]#!隻の$SHIPS_CONCEPT$の$SHIP_TEMPLATE_SHORT_CONCEPT$が最新ではありません"
+ FLEET_ALMANAC_TEMPLATE_OUTDATED: "#v [ShipTemplate.GetNameNoFormatting]#!の旧式の$SHIPS_CONCEPT$（現在の$SHIP_TEMPLATE_SHORT_CONCEPT$への改装が未完了）"
+ FLEET_ALMANAC_FLEETS_HEADER: "$concept_fleets$ ([GetDataModelSize(Country.GetMilitaryFormationsFleet)])"
+ FLEET_ALMANAC_MAIN_FLEETS: "主力艦隊"
+ FLEET_ALMANAC_SMALL_FLEETS: "小規模艦隊"

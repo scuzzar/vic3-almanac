@@ -1,0 +1,12 @@
+﻿l_simp_chinese:
+ FLEET_ALMANAC_TAB: "年鉴"
+ FLEET_ALMANAC_TAB_SELECTED: "#bold 年鉴#!"
+ FLEET_ALMANAC_TAB_TOOLTIP: "舰队年鉴：[Country.GetName]的所有[Concept('concept_ship','$concept_ships$')]和[Concept('concept_fleet','$concept_fleets$')]"
+ FLEET_ALMANAC_SHIPS_HEADER: "$concept_ships$ ([Country.GetNumShips|0])"
+ FLEET_ALMANAC_NO_SHIPS: "[Country.GetName]没有[Concept('concept_ship','$concept_ships$')]"
+ FLEET_ALMANAC_GROUP: "[ShipGroup.GetNameNoFormatting]：#v [ShipList.GetNumShipsOfGroup(ShipGroup.Self)]#!"
+ FLEET_ALMANAC_FLEET_OUTDATED: "有@ships!#v [ShipList.GetNumShipsOutdated]#!艘$SHIPS_CONCEPT$使用过时的$SHIP_TEMPLATE_SHORT_CONCEPT$"
+ FLEET_ALMANAC_TEMPLATE_OUTDATED: "#v [ShipTemplate.GetNameNoFormatting]#!的过时$SHIPS_CONCEPT$（尚未改装为当前$SHIP_TEMPLATE_SHORT_CONCEPT$）"
+ FLEET_ALMANAC_FLEETS_HEADER: "$concept_fleets$ ([GetDataModelSize(Country.GetMilitaryFormationsFleet)])"
+ FLEET_ALMANAC_MAIN_FLEETS: "主力舰队"
+ FLEET_ALMANAC_SMALL_FLEETS: "小型舰队"

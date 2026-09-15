@@ -1,0 +1,12 @@
+﻿l_russian:
+ FLEET_ALMANAC_TAB: "Альманах"
+ FLEET_ALMANAC_TAB_SELECTED: "#bold Альманах#!"
+ FLEET_ALMANAC_TAB_TOOLTIP: "Альманах флота: все [Concept('concept_ship','корабли')] и [Concept('concept_fleet','флоты')] — [Country.GetName]"
+ FLEET_ALMANAC_SHIPS_HEADER: "$concept_ships$ ([Country.GetNumShips|0])"
+ FLEET_ALMANAC_NO_SHIPS: "Нет [Concept('concept_ship','кораблей')] — [Country.GetName]"
+ FLEET_ALMANAC_GROUP: "[ShipGroup.GetNameNoFormatting]: #v [ShipList.GetNumShipsOfGroup(ShipGroup.Self)]#!"
+ FLEET_ALMANAC_FLEET_OUTDATED: "Кораблей с устаревшим [Concept('concept_ship_template', 'шаблоном')]: @ships! #v [ShipList.GetNumShipsOutdated]#!"
+ FLEET_ALMANAC_TEMPLATE_OUTDATED: "Устаревшие корабли шаблона #v [ShipTemplate.GetNameNoFormatting]#! (ещё не переоборудованы под текущий [Concept('concept_ship_template', 'шаблон')])"
+ FLEET_ALMANAC_FLEETS_HEADER: "$concept_fleets$ ([GetDataModelSize(Country.GetMilitaryFormationsFleet)])"
+ FLEET_ALMANAC_MAIN_FLEETS: "Основные флоты"
+ FLEET_ALMANAC_SMALL_FLEETS: "Малые флоты"

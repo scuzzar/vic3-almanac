@@ -18,10 +18,10 @@ Nutzer spricht Deutsch; Antworten auf Deutsch. Code-Kommentare, README, Commit-M
 |---|---|
 | `gui/00_fleet_almanac.gui` | Generiert. Muss **vor** `country_panel.gui` laden (`00_`-Präfix): bei doppelten GUI-Typen gewinnt die **erste** Definition |
 | `tools/build_fleet_almanac.ps1` | Build-Skript (Parameter `-GameDir`, `-ModDir`) |
-| `localization/english`, `localization/german` | `fleet_almanac_l_*.yml` – UTF-8 **mit BOM**, genau ein Schlüssel pro Zeile |
+| `localization/<sprache>` | `fleet_almanac_l_*.yml` für **alle 11 Spielsprachen** (english, german, braz_por, french, japanese, korean, polish, russian, simp_chinese, spanish, turkish) – UTF-8 **mit BOM**, genau ein Schlüssel pro Zeile. Spiel fällt bei fehlenden Keys nicht auf Englisch zurück → neue/geänderte Keys immer in allen Sprachen pflegen. Nicht-DE/EN per KI übersetzt, Begriffe aus Vanilla-Lokalisierung übernommen; Ländernamen per „–"/„:" freistellen (Kasus/Artikel) |
 | `.metadata/metadata.json` | Launcher-Metadaten (`id: fleet_almanac`, `multiplayer_synchronized: false`) |
 | `thumbnail.png`, `.metadata/thumbnail.png` | Vorschaubild (1024×1024, 1,35 MB – für Steam zu groß, siehe unten) |
-| `docs/` | Screenshots für README/Mod-Seite |
+| `docs/` | Screenshots für README/Mod-Seite (`vanilla_ships_tooltip.png` behalten), `mod_description.txt` = Beschreibung der Mod-Seite (nur Englisch, bei Feature-Änderungen mitpflegen) |
 | `tools/steam_preview.png`, `tools/steam_preview.vdf` | 512×512-Vorschau + SteamCMD-Konfiguration |
 
 ## Was das Build-Skript tut
