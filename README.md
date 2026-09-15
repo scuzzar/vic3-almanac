@@ -14,9 +14,9 @@ The mod is purely cosmetic: no scripted effects, nothing is written to the save 
 
 ## Screenshots
 
-| Ships and an expanded fleet | Outdated ships of a template |
+| Overview | Expanded fleet |
 |---|---|
-| ![Almanac tab with the ship template list and an expanded fleet](docs/almanac_overview.png) | ![Tooltip listing outdated ships with their current equipment](docs/almanac_outdated_ships.png) |
+| ![Almanac tab with unit types, the ship template list and the fleet list](docs/almanac_overview.png) | ![Almanac tab with a fleet expanded to its ship templates](docs/almanac_fleet_expanded.png) |
 
 ## Structure
 
