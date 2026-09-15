@@ -3,7 +3,8 @@
 # Contains generated copies of vanilla types (Victoria 3 1.14.2) - regenerate after game updates:
 #   country_panel (game/gui/country_panel.gui)   -> overridden: uses fleet_almanac_tab_buttons, adds the Almanac content
 #   tab_buttons   (game/gui/shared/tab_bars.gui) -> copied as fleet_almanac_tab_buttons with a 6th tab (vanilla tab_buttons untouched)
-#   generated lists: ship modification slots (common/ship_modification_slots)
+#   generated lists: ship modification slots (common/ship_modification_slots),
+#                    land combat unit types by group (common/combat_unit_groups, common/combat_unit_types)
 # This file must load BEFORE country_panel.gui (00_ prefix): the first type definition wins.
 @panel_width_minus_20 = 520
 @panel_width_minus_10 = 530			# used to be 530
@@ -684,6 +685,597 @@ types fleet_almanac_types
 		margin_top = 10
 		margin_bottom = 10
 
+		### NEWEST UNLOCKED COMBAT UNIT TYPE PER LAND GROUP (one line, generated from game/common/combat_unit_types)
+		flowcontainer = {
+			parentanchor = hcenter
+			spacing = 16
+			margin = { 10 4 }
+			ignoreinvisible = yes
+
+			background = {
+				using = entry_bg
+			}
+
+			### combat_unit_group_infantry
+			flowcontainer = {
+				parentanchor = vcenter
+				spacing = 16
+				ignoreinvisible = yes
+
+				flowcontainer = {
+					visible = "[Not(Or(Or(Or(Or(GetTechnology('line_infantry').HasResearchedTech(Country.Self), GetTechnology('general_staff').HasResearchedTech(Country.Self)), GetTechnology('trench_works').HasResearchedTech(Country.Self)), GetTechnology('nco_training').HasResearchedTech(Country.Self)), GetTechnology('mobile_armor').HasResearchedTech(Country.Self)))]"
+					datacontext = "[GetCombatUnitType('combat_unit_type_irregular_infantry')]"
+					parentanchor = vcenter
+					spacing = 5
+
+					tooltipwidget = {
+						FancyTooltip_CombatUnitTypeWithoutCulture = {}
+					}
+
+					icon = {
+						parentanchor = vcenter
+						size = { 32 32 }
+						texture = "[CombatUnitType.GetDefaultTexture]"
+
+						modify_texture = {
+							using = simple_frame_mask
+						}
+
+						icon = {
+							using = simple_frame
+							size = { 100% 100% }
+						}
+					}
+
+					textbox = {
+						parentanchor = vcenter
+						autoresize = yes
+						max_width = 150
+						elide = right
+						align = nobaseline
+						text = "[CombatUnitType.GetNameNoFormatting]"
+					}
+				}
+
+				flowcontainer = {
+					visible = "[And(GetTechnology('line_infantry').HasResearchedTech(Country.Self), Not(Or(Or(Or(GetTechnology('general_staff').HasResearchedTech(Country.Self), GetTechnology('trench_works').HasResearchedTech(Country.Self)), GetTechnology('nco_training').HasResearchedTech(Country.Self)), GetTechnology('mobile_armor').HasResearchedTech(Country.Self))))]"
+					datacontext = "[GetCombatUnitType('combat_unit_type_line_infantry')]"
+					parentanchor = vcenter
+					spacing = 5
+
+					tooltipwidget = {
+						FancyTooltip_CombatUnitTypeWithoutCulture = {}
+					}
+
+					icon = {
+						parentanchor = vcenter
+						size = { 32 32 }
+						texture = "[CombatUnitType.GetDefaultTexture]"
+
+						modify_texture = {
+							using = simple_frame_mask
+						}
+
+						icon = {
+							using = simple_frame
+							size = { 100% 100% }
+						}
+					}
+
+					textbox = {
+						parentanchor = vcenter
+						autoresize = yes
+						max_width = 150
+						elide = right
+						align = nobaseline
+						text = "[CombatUnitType.GetNameNoFormatting]"
+					}
+				}
+
+				flowcontainer = {
+					visible = "[And(GetTechnology('general_staff').HasResearchedTech(Country.Self), Not(Or(Or(GetTechnology('trench_works').HasResearchedTech(Country.Self), GetTechnology('nco_training').HasResearchedTech(Country.Self)), GetTechnology('mobile_armor').HasResearchedTech(Country.Self))))]"
+					datacontext = "[GetCombatUnitType('combat_unit_type_skirmish_infantry')]"
+					parentanchor = vcenter
+					spacing = 5
+
+					tooltipwidget = {
+						FancyTooltip_CombatUnitTypeWithoutCulture = {}
+					}
+
+					icon = {
+						parentanchor = vcenter
+						size = { 32 32 }
+						texture = "[CombatUnitType.GetDefaultTexture]"
+
+						modify_texture = {
+							using = simple_frame_mask
+						}
+
+						icon = {
+							using = simple_frame
+							size = { 100% 100% }
+						}
+					}
+
+					textbox = {
+						parentanchor = vcenter
+						autoresize = yes
+						max_width = 150
+						elide = right
+						align = nobaseline
+						text = "[CombatUnitType.GetNameNoFormatting]"
+					}
+				}
+
+				flowcontainer = {
+					visible = "[And(GetTechnology('trench_works').HasResearchedTech(Country.Self), Not(Or(GetTechnology('nco_training').HasResearchedTech(Country.Self), GetTechnology('mobile_armor').HasResearchedTech(Country.Self))))]"
+					datacontext = "[GetCombatUnitType('combat_unit_type_trench_infantry')]"
+					parentanchor = vcenter
+					spacing = 5
+
+					tooltipwidget = {
+						FancyTooltip_CombatUnitTypeWithoutCulture = {}
+					}
+
+					icon = {
+						parentanchor = vcenter
+						size = { 32 32 }
+						texture = "[CombatUnitType.GetDefaultTexture]"
+
+						modify_texture = {
+							using = simple_frame_mask
+						}
+
+						icon = {
+							using = simple_frame
+							size = { 100% 100% }
+						}
+					}
+
+					textbox = {
+						parentanchor = vcenter
+						autoresize = yes
+						max_width = 150
+						elide = right
+						align = nobaseline
+						text = "[CombatUnitType.GetNameNoFormatting]"
+					}
+				}
+
+				flowcontainer = {
+					visible = "[And(GetTechnology('nco_training').HasResearchedTech(Country.Self), Not(GetTechnology('mobile_armor').HasResearchedTech(Country.Self)))]"
+					datacontext = "[GetCombatUnitType('combat_unit_type_squad_infantry')]"
+					parentanchor = vcenter
+					spacing = 5
+
+					tooltipwidget = {
+						FancyTooltip_CombatUnitTypeWithoutCulture = {}
+					}
+
+					icon = {
+						parentanchor = vcenter
+						size = { 32 32 }
+						texture = "[CombatUnitType.GetDefaultTexture]"
+
+						modify_texture = {
+							using = simple_frame_mask
+						}
+
+						icon = {
+							using = simple_frame
+							size = { 100% 100% }
+						}
+					}
+
+					textbox = {
+						parentanchor = vcenter
+						autoresize = yes
+						max_width = 150
+						elide = right
+						align = nobaseline
+						text = "[CombatUnitType.GetNameNoFormatting]"
+					}
+				}
+
+				flowcontainer = {
+					visible = "[GetTechnology('mobile_armor').HasResearchedTech(Country.Self)]"
+					datacontext = "[GetCombatUnitType('combat_unit_type_mechanized_infantry')]"
+					parentanchor = vcenter
+					spacing = 5
+
+					tooltipwidget = {
+						FancyTooltip_CombatUnitTypeWithoutCulture = {}
+					}
+
+					icon = {
+						parentanchor = vcenter
+						size = { 32 32 }
+						texture = "[CombatUnitType.GetDefaultTexture]"
+
+						modify_texture = {
+							using = simple_frame_mask
+						}
+
+						icon = {
+							using = simple_frame
+							size = { 100% 100% }
+						}
+					}
+
+					textbox = {
+						parentanchor = vcenter
+						autoresize = yes
+						max_width = 150
+						elide = right
+						align = nobaseline
+						text = "[CombatUnitType.GetNameNoFormatting]"
+					}
+				}
+			}
+			### combat_unit_group_artillery
+			flowcontainer = {
+				parentanchor = vcenter
+				spacing = 16
+				ignoreinvisible = yes
+
+				flowcontainer = {
+					visible = "[And(GetTechnology('artillery').HasResearchedTech(Country.Self), Not(Or(Or(Or(GetTechnology('napoleonic_warfare').HasResearchedTech(Country.Self), GetTechnology('breech_loading_artillery').HasResearchedTech(Country.Self)), GetTechnology('defense_in_depth').HasResearchedTech(Country.Self)), GetTechnology('mobile_armor').HasResearchedTech(Country.Self))))]"
+					datacontext = "[GetCombatUnitType('combat_unit_type_cannon_artillery')]"
+					parentanchor = vcenter
+					spacing = 5
+
+					tooltipwidget = {
+						FancyTooltip_CombatUnitTypeWithoutCulture = {}
+					}
+
+					icon = {
+						parentanchor = vcenter
+						size = { 32 32 }
+						texture = "[CombatUnitType.GetDefaultTexture]"
+
+						modify_texture = {
+							using = simple_frame_mask
+						}
+
+						icon = {
+							using = simple_frame
+							size = { 100% 100% }
+						}
+					}
+
+					textbox = {
+						parentanchor = vcenter
+						autoresize = yes
+						max_width = 150
+						elide = right
+						align = nobaseline
+						text = "[CombatUnitType.GetNameNoFormatting]"
+					}
+				}
+
+				flowcontainer = {
+					visible = "[And(GetTechnology('napoleonic_warfare').HasResearchedTech(Country.Self), Not(Or(Or(GetTechnology('breech_loading_artillery').HasResearchedTech(Country.Self), GetTechnology('defense_in_depth').HasResearchedTech(Country.Self)), GetTechnology('mobile_armor').HasResearchedTech(Country.Self))))]"
+					datacontext = "[GetCombatUnitType('combat_unit_type_mobile_artillery')]"
+					parentanchor = vcenter
+					spacing = 5
+
+					tooltipwidget = {
+						FancyTooltip_CombatUnitTypeWithoutCulture = {}
+					}
+
+					icon = {
+						parentanchor = vcenter
+						size = { 32 32 }
+						texture = "[CombatUnitType.GetDefaultTexture]"
+
+						modify_texture = {
+							using = simple_frame_mask
+						}
+
+						icon = {
+							using = simple_frame
+							size = { 100% 100% }
+						}
+					}
+
+					textbox = {
+						parentanchor = vcenter
+						autoresize = yes
+						max_width = 150
+						elide = right
+						align = nobaseline
+						text = "[CombatUnitType.GetNameNoFormatting]"
+					}
+				}
+
+				flowcontainer = {
+					visible = "[And(GetTechnology('breech_loading_artillery').HasResearchedTech(Country.Self), Not(Or(GetTechnology('defense_in_depth').HasResearchedTech(Country.Self), GetTechnology('mobile_armor').HasResearchedTech(Country.Self))))]"
+					datacontext = "[GetCombatUnitType('combat_unit_type_shrapnel_artillery')]"
+					parentanchor = vcenter
+					spacing = 5
+
+					tooltipwidget = {
+						FancyTooltip_CombatUnitTypeWithoutCulture = {}
+					}
+
+					icon = {
+						parentanchor = vcenter
+						size = { 32 32 }
+						texture = "[CombatUnitType.GetDefaultTexture]"
+
+						modify_texture = {
+							using = simple_frame_mask
+						}
+
+						icon = {
+							using = simple_frame
+							size = { 100% 100% }
+						}
+					}
+
+					textbox = {
+						parentanchor = vcenter
+						autoresize = yes
+						max_width = 150
+						elide = right
+						align = nobaseline
+						text = "[CombatUnitType.GetNameNoFormatting]"
+					}
+				}
+
+				flowcontainer = {
+					visible = "[And(GetTechnology('defense_in_depth').HasResearchedTech(Country.Self), Not(GetTechnology('mobile_armor').HasResearchedTech(Country.Self)))]"
+					datacontext = "[GetCombatUnitType('combat_unit_type_siege_artillery')]"
+					parentanchor = vcenter
+					spacing = 5
+
+					tooltipwidget = {
+						FancyTooltip_CombatUnitTypeWithoutCulture = {}
+					}
+
+					icon = {
+						parentanchor = vcenter
+						size = { 32 32 }
+						texture = "[CombatUnitType.GetDefaultTexture]"
+
+						modify_texture = {
+							using = simple_frame_mask
+						}
+
+						icon = {
+							using = simple_frame
+							size = { 100% 100% }
+						}
+					}
+
+					textbox = {
+						parentanchor = vcenter
+						autoresize = yes
+						max_width = 150
+						elide = right
+						align = nobaseline
+						text = "[CombatUnitType.GetNameNoFormatting]"
+					}
+				}
+
+				flowcontainer = {
+					visible = "[GetTechnology('mobile_armor').HasResearchedTech(Country.Self)]"
+					datacontext = "[GetCombatUnitType('combat_unit_type_heavy_tank')]"
+					parentanchor = vcenter
+					spacing = 5
+
+					tooltipwidget = {
+						FancyTooltip_CombatUnitTypeWithoutCulture = {}
+					}
+
+					icon = {
+						parentanchor = vcenter
+						size = { 32 32 }
+						texture = "[CombatUnitType.GetDefaultTexture]"
+
+						modify_texture = {
+							using = simple_frame_mask
+						}
+
+						icon = {
+							using = simple_frame
+							size = { 100% 100% }
+						}
+					}
+
+					textbox = {
+						parentanchor = vcenter
+						autoresize = yes
+						max_width = 150
+						elide = right
+						align = nobaseline
+						text = "[CombatUnitType.GetNameNoFormatting]"
+					}
+				}
+			}
+			### combat_unit_group_cavalry
+			flowcontainer = {
+				parentanchor = vcenter
+				spacing = 16
+				ignoreinvisible = yes
+
+				flowcontainer = {
+					visible = "[And(GetTechnology('standing_army').HasResearchedTech(Country.Self), Not(Or(Or(GetTechnology('line_infantry').HasResearchedTech(Country.Self), GetTechnology('napoleonic_warfare').HasResearchedTech(Country.Self)), GetTechnology('mobile_armor').HasResearchedTech(Country.Self))))]"
+					datacontext = "[GetCombatUnitType('combat_unit_type_hussars')]"
+					parentanchor = vcenter
+					spacing = 5
+
+					tooltipwidget = {
+						FancyTooltip_CombatUnitTypeWithoutCulture = {}
+					}
+
+					icon = {
+						parentanchor = vcenter
+						size = { 32 32 }
+						texture = "[CombatUnitType.GetDefaultTexture]"
+
+						modify_texture = {
+							using = simple_frame_mask
+						}
+
+						icon = {
+							using = simple_frame
+							size = { 100% 100% }
+						}
+					}
+
+					textbox = {
+						parentanchor = vcenter
+						autoresize = yes
+						max_width = 150
+						elide = right
+						align = nobaseline
+						text = "[CombatUnitType.GetNameNoFormatting]"
+					}
+				}
+
+				flowcontainer = {
+					visible = "[And(GetTechnology('line_infantry').HasResearchedTech(Country.Self), Not(Or(GetTechnology('napoleonic_warfare').HasResearchedTech(Country.Self), GetTechnology('mobile_armor').HasResearchedTech(Country.Self))))]"
+					datacontext = "[GetCombatUnitType('combat_unit_type_dragoons')]"
+					parentanchor = vcenter
+					spacing = 5
+
+					tooltipwidget = {
+						FancyTooltip_CombatUnitTypeWithoutCulture = {}
+					}
+
+					icon = {
+						parentanchor = vcenter
+						size = { 32 32 }
+						texture = "[CombatUnitType.GetDefaultTexture]"
+
+						modify_texture = {
+							using = simple_frame_mask
+						}
+
+						icon = {
+							using = simple_frame
+							size = { 100% 100% }
+						}
+					}
+
+					textbox = {
+						parentanchor = vcenter
+						autoresize = yes
+						max_width = 150
+						elide = right
+						align = nobaseline
+						text = "[CombatUnitType.GetNameNoFormatting]"
+					}
+				}
+
+				flowcontainer = {
+					visible = "[And(GetTechnology('line_infantry').HasResearchedTech(Country.Self), Not(Or(GetTechnology('napoleonic_warfare').HasResearchedTech(Country.Self), GetTechnology('mobile_armor').HasResearchedTech(Country.Self))))]"
+					datacontext = "[GetCombatUnitType('combat_unit_type_cuirassiers')]"
+					parentanchor = vcenter
+					spacing = 5
+
+					tooltipwidget = {
+						FancyTooltip_CombatUnitTypeWithoutCulture = {}
+					}
+
+					icon = {
+						parentanchor = vcenter
+						size = { 32 32 }
+						texture = "[CombatUnitType.GetDefaultTexture]"
+
+						modify_texture = {
+							using = simple_frame_mask
+						}
+
+						icon = {
+							using = simple_frame
+							size = { 100% 100% }
+						}
+					}
+
+					textbox = {
+						parentanchor = vcenter
+						autoresize = yes
+						max_width = 150
+						elide = right
+						align = nobaseline
+						text = "[CombatUnitType.GetNameNoFormatting]"
+					}
+				}
+
+				flowcontainer = {
+					visible = "[And(GetTechnology('napoleonic_warfare').HasResearchedTech(Country.Self), Not(GetTechnology('mobile_armor').HasResearchedTech(Country.Self)))]"
+					datacontext = "[GetCombatUnitType('combat_unit_type_lancers')]"
+					parentanchor = vcenter
+					spacing = 5
+
+					tooltipwidget = {
+						FancyTooltip_CombatUnitTypeWithoutCulture = {}
+					}
+
+					icon = {
+						parentanchor = vcenter
+						size = { 32 32 }
+						texture = "[CombatUnitType.GetDefaultTexture]"
+
+						modify_texture = {
+							using = simple_frame_mask
+						}
+
+						icon = {
+							using = simple_frame
+							size = { 100% 100% }
+						}
+					}
+
+					textbox = {
+						parentanchor = vcenter
+						autoresize = yes
+						max_width = 150
+						elide = right
+						align = nobaseline
+						text = "[CombatUnitType.GetNameNoFormatting]"
+					}
+				}
+
+				flowcontainer = {
+					visible = "[GetTechnology('mobile_armor').HasResearchedTech(Country.Self)]"
+					datacontext = "[GetCombatUnitType('combat_unit_type_light_tanks')]"
+					parentanchor = vcenter
+					spacing = 5
+
+					tooltipwidget = {
+						FancyTooltip_CombatUnitTypeWithoutCulture = {}
+					}
+
+					icon = {
+						parentanchor = vcenter
+						size = { 32 32 }
+						texture = "[CombatUnitType.GetDefaultTexture]"
+
+						modify_texture = {
+							using = simple_frame_mask
+						}
+
+						icon = {
+							using = simple_frame
+							size = { 100% 100% }
+						}
+					}
+
+					textbox = {
+						parentanchor = vcenter
+						autoresize = yes
+						max_width = 150
+						elide = right
+						align = nobaseline
+						text = "[CombatUnitType.GetNameNoFormatting]"
+					}
+				}
+			}
+		}
+
 		### SHIPS BY GROUP
 		default_header = {
 			blockoverride "text" {
@@ -722,15 +1314,107 @@ types fleet_almanac_types
 			}
 		}
 
-		### One flat list in game order (the GUI cannot sort or group cheaply); each line shows the fleet's current location
+		### Main fleets first, small fleets last: a fleet is small with less than 5% of the country's ships (ships * 100 < country ships * 5)
+		### or fewer than 3 ships. Each part in game order (the GUI cannot sort); its header is one identical copy per fleet of the part,
+		### stacked on top of each other (spacing = -height), so it shows exactly once - or not at all for an empty part
 		flowcontainer = {
 			parentanchor = hcenter
 			direction = vertical
-			spacing = 5
-			datamodel = "[Country.GetMilitaryFormationsFleet]"
+			ignoreinvisible = yes
 
-			item = {
-				fleet_almanac_fleet_item = {}
+			flowcontainer = {
+				direction = vertical
+				spacing = -40
+				ignoreinvisible = yes
+				datamodel = "[Country.GetMilitaryFormationsFleet]"
+
+				item = {
+					fleet_almanac_fleet_part_header = {
+						visible = "[Not(Or(LessThan_int32(Multiply_int32(MilitaryFormation.GetNumShips, '(int32)100'), Multiply_int32(Country.GetNumShips, '(int32)5')), LessThan_int32(MilitaryFormation.GetNumShips, '(int32)3')))]"
+
+						blockoverride "header_text" {
+							text = "FLEET_ALMANAC_MAIN_FLEETS"
+						}
+					}
+				}
+			}
+
+			flowcontainer = {
+				parentanchor = hcenter
+				direction = vertical
+				spacing = 5
+				ignoreinvisible = yes
+				datamodel = "[Country.GetMilitaryFormationsFleet]"
+
+				item = {
+					fleet_almanac_fleet_item = {
+						visible = "[Not(Or(LessThan_int32(Multiply_int32(MilitaryFormation.GetNumShips, '(int32)100'), Multiply_int32(Country.GetNumShips, '(int32)5')), LessThan_int32(MilitaryFormation.GetNumShips, '(int32)3')))]"
+					}
+				}
+			}
+		}
+
+		flowcontainer = {
+			parentanchor = hcenter
+			direction = vertical
+			ignoreinvisible = yes
+
+			flowcontainer = {
+				direction = vertical
+				spacing = -40
+				ignoreinvisible = yes
+				datamodel = "[Country.GetMilitaryFormationsFleet]"
+
+				item = {
+					fleet_almanac_fleet_part_header = {
+						visible = "[Or(LessThan_int32(Multiply_int32(MilitaryFormation.GetNumShips, '(int32)100'), Multiply_int32(Country.GetNumShips, '(int32)5')), LessThan_int32(MilitaryFormation.GetNumShips, '(int32)3'))]"
+
+						blockoverride "header_text" {
+							text = "FLEET_ALMANAC_SMALL_FLEETS"
+						}
+					}
+				}
+			}
+
+			flowcontainer = {
+				parentanchor = hcenter
+				direction = vertical
+				spacing = 5
+				ignoreinvisible = yes
+				datamodel = "[Country.GetMilitaryFormationsFleet]"
+
+				item = {
+					fleet_almanac_fleet_item = {
+						visible = "[Or(LessThan_int32(Multiply_int32(MilitaryFormation.GetNumShips, '(int32)100'), Multiply_int32(Country.GetNumShips, '(int32)5')), LessThan_int32(MilitaryFormation.GetNumShips, '(int32)3'))]"
+					}
+				}
+			}
+		}
+	}
+
+	### Header of a part of the fleet list (main fleets / small fleets); fixed height 40, used stacked with spacing = -40
+	type fleet_almanac_fleet_part_header = widget {
+		size = { @panel_width 40 }
+
+		widget = {
+			parentanchor = bottom
+			size = { 100% 32 }
+
+			background = {
+				using = dark_area
+			}
+
+			textbox = {
+				parentanchor = vcenter
+				position = { 10 0 }
+				autoresize = yes
+				max_width = 500
+				elide = right
+				align = nobaseline
+
+				block "header_text" {
+					text = "FLEET_ALMANAC_MAIN_FLEETS"
+				}
 			}
 		}
 	}
@@ -1159,7 +1843,7 @@ types fleet_almanac_types
 		section_header_button = {
 			datacontext = "[MilitaryFormation.GetShipList]"
 			parentanchor = hcenter
-			size = { @panel_width 60 }
+			size = { @panel_width 48 }
 			onmousehierarchyenter = "[AccessHighlightManager.HighlightMilitaryFormation( MilitaryFormation.Self )]"
 			onmousehierarchyleave = "[AccessHighlightManager.RemoveHighlight]"
 
@@ -1175,7 +1859,7 @@ types fleet_almanac_types
 				visible = "[GetVariableSystem.Exists(Concatenate('fleet_almanac_fleet_', MilitaryFormation.GetIDString))]"
 			}
 
-			### Flag, name, status and current location (HQ region, otherwise sea region, otherwise unknown)
+			### Flag, name and status (the status already names the current location)
 			flowcontainer = {
 				parentanchor = vcenter
 				position = { 32 0 }
@@ -1191,7 +1875,6 @@ types fleet_almanac_types
 				flowcontainer = {
 					parentanchor = vcenter
 					direction = vertical
-					ignoreinvisible = yes
 
 					textbox = {
 						autoresize = yes
@@ -1209,36 +1892,6 @@ types fleet_almanac_types
 						max_width = 250
 						using = fontsize_small
 						text = "[MilitaryFormation.GetShortFormationStatusDesc]"
-					}
-
-					textbox = {
-						visible = "[MilitaryFormation.GetCurrentHQ.IsValid]"
-						autoresize = yes
-						align = nobaseline
-						elide = right
-						max_width = 250
-						using = fontsize_small
-						text = "FLEET_ALMANAC_LOCATION_HQ"
-					}
-
-					textbox = {
-						visible = "[And(Not(MilitaryFormation.GetCurrentHQ.IsValid), Not(StringIsEmpty(MilitaryFormation.GetCurrentSeaNode.GetStateRegion.GetStrategicRegion.GetNameNoFormatting)))]"
-						autoresize = yes
-						align = nobaseline
-						elide = right
-						max_width = 250
-						using = fontsize_small
-						text = "FLEET_ALMANAC_LOCATION_SEA"
-					}
-
-					textbox = {
-						visible = "[And(Not(MilitaryFormation.GetCurrentHQ.IsValid), StringIsEmpty(MilitaryFormation.GetCurrentSeaNode.GetStateRegion.GetStrategicRegion.GetNameNoFormatting))]"
-						autoresize = yes
-						align = nobaseline
-						elide = right
-						max_width = 250
-						using = fontsize_small
-						text = "FLEET_ALMANAC_LOCATION_UNKNOWN"
 					}
 				}
 			}

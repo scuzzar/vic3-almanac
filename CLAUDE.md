@@ -31,6 +31,7 @@ Nutzer spricht Deutsch; Antworten auf Deutsch. Code-Kommentare, README, Commit-M
    - `tab_buttons` (`game/gui/shared/tab_bars.gui`, Z. 47–331) → als `fleet_almanac_tab_buttons` mit 6. Tab (Vanilla bleibt unberührt)
    - Die `@panel_width`-Konstanten sind dateilokal und werden mitkopiert
 2. Erzeugt Listen aus Spieldateien und ersetzt Platzhalter:
+   - `@@UNIT_TYPES@@`: Landgruppen aus `common/combat_unit_groups` (ohne Marines) mit ihren Typen aus `common/combat_unit_types` samt `unlocking_technologies` (Abbruch bei mehr als einer Tech pro Typ)
    - `@@MOD_SLOTS@@` (Vorlagen) / `@@MOD_SLOTS_SHIP@@` (Schiffe im Tooltip): Nicht-Utility-Slots aus `common/ship_modification_slots` in Dateireihenfolge (armor, guns, propulsion, range)
 3. Prüft Klammerbalance. Danach immer auch Lokalisierung gegen die GUI prüfen (fehlende/ungenutzte Keys, BOM, ein Key pro Zeile).
 
@@ -38,15 +39,17 @@ Nach einem Spielupdate: Skript laufen lassen; bei Abbruch die gemeldeten Vanilla
 
 ## Aktueller Aufbau des Tabs
 
+- **Einheitentypen (ganz oben, eine Zeile):** pro Landgruppe (Infantry, Artillery, Cavalry) Bild (32 px) + Name des neuesten freigeschalteten Typs, ohne Gruppenbeschriftung, mit Vanilla-Tooltip `FancyTooltip_CombatUnitTypeWithoutCulture`. Neuester = eigene Tech erforscht (`GetTechnology('x').HasResearchedTech(Country.Self)`) und kein späterer Typ der Gruppe mit anderer Tech; gleiche Tech (Dragoner/Kürassiere) → beide. Ohne passende Tech (z. B. keine Artillerie) erscheint für die Gruppe nichts. Keine Stückzahlen: es gibt keine landesweite Zählung pro Gruppe/Typ, nur pro Armee.
 - **Ships:** pro Schiffsgruppe (`GetShipGroups`) ein Kopf „Capital Ships: N", darunter **eine Zeile pro Vorlage** (`ShipList.GetShipTemplatesOfGroup`): Anzahl (+ im Bau), Silhouette, Typname / Vorlagenname, Modifikationen nach Slot (linksbündig, ohne Utility-Extras), Panzerung + Rumpfschaden (Vorlagen-Grundwerte wie im Bau-Menü).
   - ⬆-Marker unter der Anzahl, wenn Schiffe dieser Vorlage veraltet sind (`ShipList.GetShipsOfTemplate`); Tooltip listet diese Schiffe mit tatsächlicher Ausstattung (`Ship.GetModifications`, `GetArmor`, `GetHullDamage`).
-- **Fleets:** flache Liste in Spielreihenfolge (`Country.GetMilitaryFormationsFleet`). Früher nach Region gruppiert (142 Regionen × 2 Datamodels über alle Flotten) – aus Performancegründen zurückgebaut.
-  - Eine Zeile pro Flotte: Flagge, Name, Status, Ort (HQ-Region `GetCurrentHQ.GetStrategicRegion` „Stationed at", sonst Seeregion `GetCurrentSeaNode.GetStateRegion.GetStrategicRegion` „At", sonst „Unknown location"), Symbol+Anzahl pro Schiffsgruppe (Tooltip: Vorlagen der Gruppe), „⬆ N" veraltete Schiffe, Gehe-zu-Knopf. Aufklappen zeigt dieselbe Vorlagen-Liste für die Flotte (`MilitaryFormation.GetShipList` als Datacontext).
+- **Fleets:** flache Liste (`Country.GetMilitaryFormationsFleet`), zwei Teile: erst Hauptflotten, dann kleine Flotten (< 5 % der Schiffe des Landes oder < 3 Schiffe: `Or(LessThan_int32(Multiply_int32(MilitaryFormation.GetNumShips, 100), Multiply_int32(Country.GetNumShips, 5)), LessThan_int32(MilitaryFormation.GetNumShips, 3))`) – jeweils in Spielreihenfolge, mit Überschrift „Main fleets" / „Small fleets" (gestapelte Kopien, `spacing = -40`, erscheint nur bei nicht leerem Teil). Früher nach Region gruppiert (142 Regionen × 2 Datamodels über alle Flotten) – aus Performancegründen zurückgebaut.
+  - Eine Zeile pro Flotte: Flagge, Name, Status (`GetShortFormationStatusDesc` nennt den Ort bereits – eigene Ortszeile war doppelt und wurde entfernt), Symbol+Anzahl pro Schiffsgruppe (Tooltip: Vorlagen der Gruppe), „⬆ N" veraltete Schiffe, Gehe-zu-Knopf. Aufklappen zeigt dieselbe Vorlagen-Liste für die Flotte (`MilitaryFormation.GetShipList` als Datacontext).
 - **Karte:** `mm_military` per `SetTempMapModeByKey` / `RemoveTempMapMode` beim Hover über dem Inhalt.
 
 ## GUI-Modding-Erkenntnisse (Victoria 3 / Jomini)
 
 - **Doppelte Typen:** erste geladene Definition gewinnt → `00_`-Präfix. Typ-Änderungen brauchen **Spielneustart**; GUI-Hot-Reload im Debug-Modus reicht dafür nicht.
+- **Keine Skriptdateien** (`common/script_values` o. ä.): würden die Prüfsumme ändern (Ironman/Achievements) – Mod bleibt reine GUI + Lokalisierung.
 - **GUI kann nicht sortieren:** kein generisches Datamodel-Sort, nur fest eingebaute Panel-Sortierungen (keine für Flotten nach Ort).
 - **Performance:** Datamodel-Items existieren auch mit `visible = no` (ob ihre Kinder dann aktualisiert werden, ist ungeklärt) – Muster „N feste Gruppen × Datamodel über alle Objekte mit Filter" skaliert schlecht, sparsam einsetzen.
 - **GUI kann nicht zählen, sammeln oder deduplizieren.** Workaround für „Überschrift genau einmal / gar nicht": pro passendem Element eine identische Kopie, gestapelt mit negativem `spacing` (= -Höhe) und `ignoreinvisible = yes`.

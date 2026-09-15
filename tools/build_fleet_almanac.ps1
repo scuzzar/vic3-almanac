@@ -35,7 +35,8 @@ $header = Lines @'
 # Contains generated copies of vanilla types (Victoria 3 1.14.2) - regenerate after game updates:
 #   country_panel (game/gui/country_panel.gui)   -> overridden: uses fleet_almanac_tab_buttons, adds the Almanac content
 #   tab_buttons   (game/gui/shared/tab_bars.gui) -> copied as fleet_almanac_tab_buttons with a 6th tab (vanilla tab_buttons untouched)
-#   generated lists: ship modification slots (common/ship_modification_slots)
+#   generated lists: ship modification slots (common/ship_modification_slots),
+#                    land combat unit types by group (common/combat_unit_groups, common/combat_unit_types)
 # This file must load BEFORE country_panel.gui (00_ prefix): the first type definition wins.
 '@
 
@@ -142,6 +143,20 @@ $content = Lines @'
 		margin_top = 10
 		margin_bottom = 10
 
+		### NEWEST UNLOCKED COMBAT UNIT TYPE PER LAND GROUP (one line, generated from game/common/combat_unit_types)
+		flowcontainer = {
+			parentanchor = hcenter
+			spacing = 16
+			margin = { 10 4 }
+			ignoreinvisible = yes
+
+			background = {
+				using = entry_bg
+			}
+
+			@@UNIT_TYPES@@
+		}
+
 		### SHIPS BY GROUP
 		default_header = {
 			blockoverride "text" {
@@ -180,15 +195,107 @@ $content = Lines @'
 			}
 		}
 
-		### One flat list in game order (the GUI cannot sort or group cheaply); each line shows the fleet's current location
+		### Main fleets first, small fleets last: a fleet is small with less than 5% of the country's ships (ships * 100 < country ships * 5)
+		### or fewer than 3 ships. Each part in game order (the GUI cannot sort); its header is one identical copy per fleet of the part,
+		### stacked on top of each other (spacing = -height), so it shows exactly once - or not at all for an empty part
 		flowcontainer = {
 			parentanchor = hcenter
 			direction = vertical
-			spacing = 5
-			datamodel = "[Country.GetMilitaryFormationsFleet]"
+			ignoreinvisible = yes
 
-			item = {
-				fleet_almanac_fleet_item = {}
+			flowcontainer = {
+				direction = vertical
+				spacing = -40
+				ignoreinvisible = yes
+				datamodel = "[Country.GetMilitaryFormationsFleet]"
+
+				item = {
+					fleet_almanac_fleet_part_header = {
+						visible = "[Not(Or(LessThan_int32(Multiply_int32(MilitaryFormation.GetNumShips, '(int32)100'), Multiply_int32(Country.GetNumShips, '(int32)5')), LessThan_int32(MilitaryFormation.GetNumShips, '(int32)3')))]"
+
+						blockoverride "header_text" {
+							text = "FLEET_ALMANAC_MAIN_FLEETS"
+						}
+					}
+				}
+			}
+
+			flowcontainer = {
+				parentanchor = hcenter
+				direction = vertical
+				spacing = 5
+				ignoreinvisible = yes
+				datamodel = "[Country.GetMilitaryFormationsFleet]"
+
+				item = {
+					fleet_almanac_fleet_item = {
+						visible = "[Not(Or(LessThan_int32(Multiply_int32(MilitaryFormation.GetNumShips, '(int32)100'), Multiply_int32(Country.GetNumShips, '(int32)5')), LessThan_int32(MilitaryFormation.GetNumShips, '(int32)3')))]"
+					}
+				}
+			}
+		}
+
+		flowcontainer = {
+			parentanchor = hcenter
+			direction = vertical
+			ignoreinvisible = yes
+
+			flowcontainer = {
+				direction = vertical
+				spacing = -40
+				ignoreinvisible = yes
+				datamodel = "[Country.GetMilitaryFormationsFleet]"
+
+				item = {
+					fleet_almanac_fleet_part_header = {
+						visible = "[Or(LessThan_int32(Multiply_int32(MilitaryFormation.GetNumShips, '(int32)100'), Multiply_int32(Country.GetNumShips, '(int32)5')), LessThan_int32(MilitaryFormation.GetNumShips, '(int32)3'))]"
+
+						blockoverride "header_text" {
+							text = "FLEET_ALMANAC_SMALL_FLEETS"
+						}
+					}
+				}
+			}
+
+			flowcontainer = {
+				parentanchor = hcenter
+				direction = vertical
+				spacing = 5
+				ignoreinvisible = yes
+				datamodel = "[Country.GetMilitaryFormationsFleet]"
+
+				item = {
+					fleet_almanac_fleet_item = {
+						visible = "[Or(LessThan_int32(Multiply_int32(MilitaryFormation.GetNumShips, '(int32)100'), Multiply_int32(Country.GetNumShips, '(int32)5')), LessThan_int32(MilitaryFormation.GetNumShips, '(int32)3'))]"
+					}
+				}
+			}
+		}
+	}
+
+	### Header of a part of the fleet list (main fleets / small fleets); fixed height 40, used stacked with spacing = -40
+	type fleet_almanac_fleet_part_header = widget {
+		size = { @panel_width 40 }
+
+		widget = {
+			parentanchor = bottom
+			size = { 100% 32 }
+
+			background = {
+				using = dark_area
+			}
+
+			textbox = {
+				parentanchor = vcenter
+				position = { 10 0 }
+				autoresize = yes
+				max_width = 500
+				elide = right
+				align = nobaseline
+
+				block "header_text" {
+					text = "FLEET_ALMANAC_MAIN_FLEETS"
+				}
 			}
 		}
 	}
@@ -467,7 +574,7 @@ $content = Lines @'
 		section_header_button = {
 			datacontext = "[MilitaryFormation.GetShipList]"
 			parentanchor = hcenter
-			size = { @panel_width 60 }
+			size = { @panel_width 48 }
 			onmousehierarchyenter = "[AccessHighlightManager.HighlightMilitaryFormation( MilitaryFormation.Self )]"
 			onmousehierarchyleave = "[AccessHighlightManager.RemoveHighlight]"
 
@@ -483,7 +590,7 @@ $content = Lines @'
 				visible = "[GetVariableSystem.Exists(Concatenate('fleet_almanac_fleet_', MilitaryFormation.GetIDString))]"
 			}
 
-			### Flag, name, status and current location (HQ region, otherwise sea region, otherwise unknown)
+			### Flag, name and status (the status already names the current location)
 			flowcontainer = {
 				parentanchor = vcenter
 				position = { 32 0 }
@@ -499,7 +606,6 @@ $content = Lines @'
 				flowcontainer = {
 					parentanchor = vcenter
 					direction = vertical
-					ignoreinvisible = yes
 
 					textbox = {
 						autoresize = yes
@@ -517,36 +623,6 @@ $content = Lines @'
 						max_width = 250
 						using = fontsize_small
 						text = "[MilitaryFormation.GetShortFormationStatusDesc]"
-					}
-
-					textbox = {
-						visible = "[MilitaryFormation.GetCurrentHQ.IsValid]"
-						autoresize = yes
-						align = nobaseline
-						elide = right
-						max_width = 250
-						using = fontsize_small
-						text = "FLEET_ALMANAC_LOCATION_HQ"
-					}
-
-					textbox = {
-						visible = "[And(Not(MilitaryFormation.GetCurrentHQ.IsValid), Not(StringIsEmpty(MilitaryFormation.GetCurrentSeaNode.GetStateRegion.GetStrategicRegion.GetNameNoFormatting)))]"
-						autoresize = yes
-						align = nobaseline
-						elide = right
-						max_width = 250
-						using = fontsize_small
-						text = "FLEET_ALMANAC_LOCATION_SEA"
-					}
-
-					textbox = {
-						visible = "[And(Not(MilitaryFormation.GetCurrentHQ.IsValid), StringIsEmpty(MilitaryFormation.GetCurrentSeaNode.GetStateRegion.GetStrategicRegion.GetNameNoFormatting))]"
-						autoresize = yes
-						align = nobaseline
-						elide = right
-						max_width = 250
-						using = fontsize_small
-						text = "FLEET_ALMANAC_LOCATION_UNKNOWN"
 					}
 				}
 			}
@@ -715,9 +791,102 @@ function New-SlotLines($datamodel, $iconSize) {
 	return ,$res
 }
 
+# Land combat unit groups (file order, marines left out) and their unit types with the unlocking technology:
+# per group one image + name per type (no group label), visible for the newest unlocked type(s) - its technology is researched and no later type
+# of the group with a different technology is (types sharing a technology, like dragoons and cuirassiers, show together)
+$gameRoot = Split-Path $game -Parent
+$excludedUnitGroups = @('combat_unit_group_marines')
+$unitGroups = New-Object System.Collections.Generic.List[string]
+foreach ($f in (Get-ChildItem "$gameRoot\common\combat_unit_groups" -Filter '*.txt' | Sort-Object Name)) {
+	foreach ($b in (Get-TopBlocks $f.FullName)) { if ($excludedUnitGroups -notcontains $b.Key) { $unitGroups.Add($b.Key) } }
+}
+if ($unitGroups.Count -eq 0) { throw 'No land combat unit groups found' }
+
+$unitTypes = New-Object System.Collections.Generic.List[object]
+foreach ($f in (Get-ChildItem "$gameRoot\common\combat_unit_types" -Filter '*.txt' | Sort-Object Name)) {
+	foreach ($b in (Get-TopBlocks $f.FullName)) {
+		if ($b.Body -match '\bgroup\s*=\s*(\w+)') { $grp = $Matches[1] } else { throw "Combat unit type $($b.Key) has no group" }
+		$tech = $null
+		if ($b.Body -match '\bunlocking_technologies\s*=\s*\{([^}]*)\}') {
+			$techs = @([regex]::Matches($Matches[1], '\w+') | ForEach-Object { $_.Value })
+			if ($techs.Count -gt 1) { throw "Combat unit type $($b.Key) has more than one unlocking technology - check how the visibility condition should combine them" }
+			if ($techs.Count -eq 1) { $tech = $techs[0] }
+		}
+		$unitTypes.Add([pscustomobject]@{ Key = $b.Key; Group = $grp; Tech = $tech })
+	}
+}
+
+function Join-Condition($op, $terms) {
+	$r = $terms[0]
+	for ($i = 1; $i -lt $terms.Count; $i++) { $r = "$op($r, $($terms[$i]))" }
+	return $r
+}
+
+$unitTypeLines = New-Object System.Collections.Generic.List[string]
+foreach ($g in $unitGroups) {
+	$types = @($unitTypes | Where-Object { $_.Group -eq $g })
+	if ($types.Count -eq 0) { throw "No combat unit types found for group $g" }
+	$block = @"
+			### $g
+			flowcontainer = {
+				parentanchor = vcenter
+				spacing = 16
+				ignoreinvisible = yes
+"@
+	$unitTypeLines.AddRange([string[]]($block -split "`r?`n"))
+	for ($i = 0; $i -lt $types.Count; $i++) {
+		$t = $types[$i]
+		$terms = New-Object System.Collections.Generic.List[string]
+		if ($t.Tech) { $terms.Add("GetTechnology('$($t.Tech)').HasResearchedTech(Country.Self)") }
+		$later = @($types | Select-Object -Skip ($i + 1) | Where-Object { $_.Tech -and $_.Tech -ne $t.Tech } | ForEach-Object { $_.Tech } | Select-Object -Unique)
+		if ($later.Count -gt 0) { $terms.Add("Not($(Join-Condition 'Or' @($later | ForEach-Object { "GetTechnology('$_').HasResearchedTech(Country.Self)" })))") }
+		$visible = if ($terms.Count -gt 0) { "`n					visible = `"[$(Join-Condition 'And' $terms)]`"" } else { '' }
+		$block = @"
+
+				flowcontainer = {$visible
+					datacontext = "[GetCombatUnitType('$($t.Key)')]"
+					parentanchor = vcenter
+					spacing = 5
+
+					tooltipwidget = {
+						FancyTooltip_CombatUnitTypeWithoutCulture = {}
+					}
+
+					icon = {
+						parentanchor = vcenter
+						size = { 32 32 }
+						texture = "[CombatUnitType.GetDefaultTexture]"
+
+						modify_texture = {
+							using = simple_frame_mask
+						}
+
+						icon = {
+							using = simple_frame
+							size = { 100% 100% }
+						}
+					}
+
+					textbox = {
+						parentanchor = vcenter
+						autoresize = yes
+						max_width = 150
+						elide = right
+						align = nobaseline
+						text = "[CombatUnitType.GetNameNoFormatting]"
+					}
+				}
+"@
+		$unitTypeLines.AddRange([string[]]($block -split "`r?`n"))
+	}
+	$unitTypeLines.Add('			}')
+	"combat unit group ${g}: $(($types | ForEach-Object { $_.Key -replace '^combat_unit_type_', '' }) -join ', ')"
+}
+
 $slotReplacements = @{
 	'@@MOD_SLOTS@@'      = (New-SlotLines '[ShipTemplate.GetModifications]' 22)
 	'@@MOD_SLOTS_SHIP@@' = (New-SlotLines '[Ship.GetModifications]' 20)
+	'@@UNIT_TYPES@@'     = $unitTypeLines
 }
 $slotFound = @{}
 $slotContent = New-Object System.Collections.Generic.List[string]

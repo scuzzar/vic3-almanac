@@ -8,6 +8,5 @@
  FLEET_ALMANAC_FLEET_OUTDATED: "Es gibt @ships! #v [ShipList.GetNumShipsOutdated]#! $SHIPS_CONCEPT$ mit überholter $SHIP_TEMPLATE_SHORT_CONCEPT$"
  FLEET_ALMANAC_TEMPLATE_OUTDATED: "Veraltete $SHIPS_CONCEPT$ von #v [ShipTemplate.GetNameNoFormatting]#! (noch nicht auf die aktuelle $SHIP_TEMPLATE_SHORT_CONCEPT$ umgerüstet)"
  FLEET_ALMANAC_FLEETS_HEADER: "$concept_fleets$ ([GetDataModelSize(Country.GetMilitaryFormationsFleet)])"
- FLEET_ALMANAC_LOCATION_HQ: "Stationiert in #v [MilitaryFormation.GetCurrentHQ.GetStrategicRegion.GetNameNoFormatting]#!"
- FLEET_ALMANAC_LOCATION_SEA: "In #v [MilitaryFormation.GetCurrentSeaNode.GetStateRegion.GetStrategicRegion.GetNameNoFormatting]#!"
- FLEET_ALMANAC_LOCATION_UNKNOWN: "Unbekannter Ort"
+ FLEET_ALMANAC_MAIN_FLEETS: "Hauptflotten"
+ FLEET_ALMANAC_SMALL_FLEETS: "Kleine Flotten"
