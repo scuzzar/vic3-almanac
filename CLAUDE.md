@@ -1,6 +1,6 @@
 # Fleet Almanac – Projektnotizen für Claude
 
-UI-Mod für **Victoria 3 (1.13.x)**: fügt im Länderfenster jedes Landes (auch dem eigenen) einen Tab **„Almanac"** hinter „Interactions" hinzu – Übersicht über Schiffe und Flotten. Rein kosmetisch, keine Skript-Effekte, nichts im Spielstand.
+UI-Mod für **Victoria 3 (1.14.x)**: fügt im Länderfenster jedes Landes (auch dem eigenen) einen Tab **„Almanac"** hinter „Interactions" hinzu – Übersicht über Schiffe und Flotten. Rein kosmetisch, keine Skript-Effekte, nichts im Spielstand.
 
 Nutzer spricht Deutsch; Antworten auf Deutsch. Code-Kommentare, README, Commit-Messages und Mod-Texte auf Englisch.
 
@@ -31,7 +31,6 @@ Nutzer spricht Deutsch; Antworten auf Deutsch. Code-Kommentare, README, Commit-M
    - `tab_buttons` (`game/gui/shared/tab_bars.gui`, Z. 47–331) → als `fleet_almanac_tab_buttons` mit 6. Tab (Vanilla bleibt unberührt)
    - Die `@panel_width`-Konstanten sind dateilokal und werden mitkopiert
 2. Erzeugt Listen aus Spieldateien und ersetzt Platzhalter:
-   - `@@REGION_GROUPS@@`: alle Strategieregionen aus `common/strategic_regions` (36 Land, dann 106 See). Land = mindestens ein Staat mit `subsistence_building` in `map_data/state_regions`
    - `@@MOD_SLOTS@@` (Vorlagen) / `@@MOD_SLOTS_SHIP@@` (Schiffe im Tooltip): Nicht-Utility-Slots aus `common/ship_modification_slots` in Dateireihenfolge (armor, guns, propulsion, range)
 3. Prüft Klammerbalance. Danach immer auch Lokalisierung gegen die GUI prüfen (fehlende/ungenutzte Keys, BOM, ein Key pro Zeile).
 
@@ -40,14 +39,16 @@ Nach einem Spielupdate: Skript laufen lassen; bei Abbruch die gemeldeten Vanilla
 ## Aktueller Aufbau des Tabs
 
 - **Ships:** pro Schiffsgruppe (`GetShipGroups`) ein Kopf „Capital Ships: N", darunter **eine Zeile pro Vorlage** (`ShipList.GetShipTemplatesOfGroup`): Anzahl (+ im Bau), Silhouette, Typname / Vorlagenname, Modifikationen nach Slot (linksbündig, ohne Utility-Extras), Panzerung + Rumpfschaden (Vorlagen-Grundwerte wie im Bau-Menü).
-  - ⬆-Marker unter der Anzahl, wenn Schiffe dieser Vorlage veraltet sind; Tooltip listet diese Schiffe mit tatsächlicher Ausstattung (`Ship.GetModifications`, `GetArmor`, `GetHullDamage`).
-- **Fleets:** gruppiert nach aktuellem Ort: HQ-Region (`GetCurrentHQ.GetStrategicRegion`, „Stationed at") oder – ohne HQ – Seeregion (`GetCurrentSeaNode.GetStateRegion.GetStrategicRegion`, „At"); Restgruppe „Unknown location".
-  - Eine Zeile pro Flotte: Flagge, Name + Status, Symbol+Anzahl pro Schiffsgruppe (Tooltip: Vorlagen der Gruppe), „⬆ N" veraltete Schiffe, Gehe-zu-Knopf. Aufklappen zeigt dieselbe Vorlagen-Liste für die Flotte (`MilitaryFormation.GetShipList` als Datacontext).
+  - ⬆-Marker unter der Anzahl, wenn Schiffe dieser Vorlage veraltet sind (`ShipList.GetShipsOfTemplate`); Tooltip listet diese Schiffe mit tatsächlicher Ausstattung (`Ship.GetModifications`, `GetArmor`, `GetHullDamage`).
+- **Fleets:** flache Liste in Spielreihenfolge (`Country.GetMilitaryFormationsFleet`). Früher nach Region gruppiert (142 Regionen × 2 Datamodels über alle Flotten) – aus Performancegründen zurückgebaut.
+  - Eine Zeile pro Flotte: Flagge, Name, Status, Ort (HQ-Region `GetCurrentHQ.GetStrategicRegion` „Stationed at", sonst Seeregion `GetCurrentSeaNode.GetStateRegion.GetStrategicRegion` „At", sonst „Unknown location"), Symbol+Anzahl pro Schiffsgruppe (Tooltip: Vorlagen der Gruppe), „⬆ N" veraltete Schiffe, Gehe-zu-Knopf. Aufklappen zeigt dieselbe Vorlagen-Liste für die Flotte (`MilitaryFormation.GetShipList` als Datacontext).
 - **Karte:** `mm_military` per `SetTempMapModeByKey` / `RemoveTempMapMode` beim Hover über dem Inhalt.
 
 ## GUI-Modding-Erkenntnisse (Victoria 3 / Jomini)
 
 - **Doppelte Typen:** erste geladene Definition gewinnt → `00_`-Präfix. Typ-Änderungen brauchen **Spielneustart**; GUI-Hot-Reload im Debug-Modus reicht dafür nicht.
+- **GUI kann nicht sortieren:** kein generisches Datamodel-Sort, nur fest eingebaute Panel-Sortierungen (keine für Flotten nach Ort).
+- **Performance:** Datamodel-Items existieren auch mit `visible = no` (ob ihre Kinder dann aktualisiert werden, ist ungeklärt) – Muster „N feste Gruppen × Datamodel über alle Objekte mit Filter" skaliert schlecht, sparsam einsetzen.
 - **GUI kann nicht zählen, sammeln oder deduplizieren.** Workaround für „Überschrift genau einmal / gar nicht": pro passendem Element eine identische Kopie, gestapelt mit negativem `spacing` (= -Höhe) und `ignoreinvisible = yes`.
 - Kein Zähler für veraltete Schiffe pro Vorlage (nur `GetNumShipsOutdatedOfGroup`, `GetNumShipsOutdated`). Auch per Script Value nicht lösbar (kein Outdated-Trigger, kein Ship→Template-Link im Skript).
 - Kein `Province.IsValid` → leere Referenzen über `StringIsEmpty(...GetNameNoFormatting)` prüfen. `ObjectsEqual(A.Self, B.Self)` zum Vergleichen.

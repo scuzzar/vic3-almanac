@@ -3,7 +3,7 @@
 	"id": "fleet_almanac",
 	"version": "1.0.0",
 	"picture": "thumbnail.png",
-	"supported_game_version": "1.13.*",
+	"supported_game_version": "1.14.*",
 	"short_description": "Adds an Almanac tab to the country panel with an overview of a country's ships and fleets, including your own.",
 	"tags": [],
 	"relationships": [],

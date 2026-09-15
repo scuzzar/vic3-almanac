@@ -32,10 +32,10 @@ function Lines($s) { return ,($s -split "`r?`n") }
 $header = Lines @'
 # Fleet Almanac
 # Adds an "Almanac" tab to the country panel of every country (other countries and the player's own).
-# Contains generated copies of vanilla types (Victoria 3 1.13.11) - regenerate after game updates:
+# Contains generated copies of vanilla types (Victoria 3 1.14.2) - regenerate after game updates:
 #   country_panel (game/gui/country_panel.gui)   -> overridden: uses fleet_almanac_tab_buttons, adds the Almanac content
 #   tab_buttons   (game/gui/shared/tab_bars.gui) -> copied as fleet_almanac_tab_buttons with a 6th tab (vanilla tab_buttons untouched)
-#   generated lists: land and sea strategic regions (common/strategic_regions), ship modification slots (common/ship_modification_slots)
+#   generated lists: ship modification slots (common/ship_modification_slots)
 # This file must load BEFORE country_panel.gui (00_ prefix): the first type definition wins.
 '@
 
@@ -180,138 +180,15 @@ $content = Lines @'
 			}
 		}
 
-		@@REGION_GROUPS@@
-
-		### Fleets with neither a current HQ nor a sea node
+		### One flat list in game order (the GUI cannot sort or group cheaply); each line shows the fleet's current location
 		flowcontainer = {
 			parentanchor = hcenter
 			direction = vertical
-			ignoreinvisible = yes
-
-			flowcontainer = {
-				direction = vertical
-				spacing = -46
-				ignoreinvisible = yes
-				datamodel = "[Country.GetMilitaryFormationsFleet]"
-
-				item = {
-					fleet_almanac_region_header = {
-						visible = "[And(Not(MilitaryFormation.GetCurrentHQ.IsValid), StringIsEmpty(MilitaryFormation.GetCurrentSeaNode.GetStateRegion.GetStrategicRegion.GetNameNoFormatting))]"
-
-						blockoverride "header_text" {
-							text = "FLEET_ALMANAC_NO_HQ_HEADER"
-						}
-
-						blockoverride "zoom" {}
-					}
-				}
-			}
-
-			flowcontainer = {
-				parentanchor = hcenter
-				direction = vertical
-				ignoreinvisible = yes
-				datamodel = "[Country.GetMilitaryFormationsFleet]"
-
-				item = {
-					flowcontainer = {
-						visible = "[And(Not(MilitaryFormation.GetCurrentHQ.IsValid), StringIsEmpty(MilitaryFormation.GetCurrentSeaNode.GetStateRegion.GetStrategicRegion.GetNameNoFormatting))]"
-						direction = vertical
-
-						widget = {
-							size = { 1 5 }
-						}
-
-						fleet_almanac_fleet_item = {}
-					}
-				}
-			}
-		}
-	}
-
-	### Fleets currently in this strategic region: stationed at an HQ there, or (without HQ) at a sea node of this sea region; no spacing so empty regions take no room
-	type fleet_almanac_region_group = flowcontainer {
-		parentanchor = hcenter
-		direction = vertical
-		ignoreinvisible = yes
-
-		### Header: one identical copy per fleet in this region, stacked on top of each other
-		### (spacing = -height), so it shows exactly once - or not at all for regions without fleets
-		flowcontainer = {
-			direction = vertical
-			spacing = -46
-			ignoreinvisible = yes
+			spacing = 5
 			datamodel = "[Country.GetMilitaryFormationsFleet]"
 
 			item = {
-				fleet_almanac_region_header = {
-					visible = "[Or(And(MilitaryFormation.GetCurrentHQ.IsValid, ObjectsEqual(MilitaryFormation.GetCurrentHQ.GetStrategicRegion.Self, StrategicRegion.Self)), And(Not(MilitaryFormation.GetCurrentHQ.IsValid), ObjectsEqual(MilitaryFormation.GetCurrentSeaNode.GetStateRegion.GetStrategicRegion.Self, StrategicRegion.Self)))]"
-
-					
-blockoverride "header_text" {
-						
-text = "[SelectLocalization(MilitaryFormation.GetCurrentHQ.IsValid, 'FLEET_ALMANAC_REGION_HEADER', 'FLEET_ALMANAC_SEA_HEADER')]"
-					
-}
-				}
-			}
-		}
-
-		flowcontainer = {
-			parentanchor = hcenter
-			direction = vertical
-			ignoreinvisible = yes
-			datamodel = "[Country.GetMilitaryFormationsFleet]"
-
-			item = {
-				flowcontainer = {
-					visible = "[Or(And(MilitaryFormation.GetCurrentHQ.IsValid, ObjectsEqual(MilitaryFormation.GetCurrentHQ.GetStrategicRegion.Self, StrategicRegion.Self)), And(Not(MilitaryFormation.GetCurrentHQ.IsValid), ObjectsEqual(MilitaryFormation.GetCurrentSeaNode.GetStateRegion.GetStrategicRegion.Self, StrategicRegion.Self)))]"
-					direction = vertical
-
-					widget = {
-						size = { 1 5 }
-					}
-
-					fleet_almanac_fleet_item = {}
-				}
-			}
-		}
-	}
-
-	### Region header "Stationed at <region>" with zoom button (needs StrategicRegion context)
-	type fleet_almanac_region_header = widget {
-		size = { @panel_width 46 }
-
-		widget = {
-			parentanchor = bottom
-			size = { 100% 36 }
-
-			background = {
-				using = dark_area
-			}
-
-			textbox = {
-				parentanchor = vcenter
-				position = { 10 0 }
-				autoresize = yes
-				max_width = 470
-				elide = right
-				align = nobaseline
-				using = fontsize_large
-
-				block "header_text" {
-					text = "FLEET_ALMANAC_REGION_HEADER"
-				}
-			}
-
-			block "zoom" {
-				button_icon_zoom = {
-					parentanchor = right|vcenter
-					position = { -8 0 }
-					size = { 28 28 }
-					tooltip = "ZOOM_TO_STRATEGIC_REGION"
-					onclick = "[StrategicRegion.ZoomToFar]"
-				}
+				fleet_almanac_fleet_item = {}
 			}
 		}
 	}
@@ -416,7 +293,7 @@ text = "[SelectLocalization(MilitaryFormation.GetCurrentHQ.IsValid, 'FLEET_ALMAN
 					direction = vertical
 					spacing = -16
 					ignoreinvisible = yes
-					datamodel = "[ShipList.GetShipsOfType(ShipTemplate.GetType.Self)]"
+					datamodel = "[ShipList.GetShipsOfTemplate(ShipTemplate.Self)]"
 
 					tooltipwidget = {
 						fleet_almanac_outdated_ships_tooltip = {
@@ -425,18 +302,14 @@ text = "[SelectLocalization(MilitaryFormation.GetCurrentHQ.IsValid, 'FLEET_ALMAN
 							}
 
 							blockoverride "ships_datamodel" {
-								datamodel = "[ShipList.GetShipsOfType(ShipTemplate.GetType.Self)]"
-							}
-
-							blockoverride "ship_filter" {
-								visible = "[And(Ship.IsOutdated, ObjectsEqual(Ship.GetTemplate.Self, ShipTemplate.Self))]"
+								datamodel = "[ShipList.GetShipsOfTemplate(ShipTemplate.Self)]"
 							}
 						}
 					}
 
 					item = {
 						icon = {
-							visible = "[And(Ship.IsOutdated, ObjectsEqual(Ship.GetTemplate.Self, ShipTemplate.Self))]"
+							visible = "[Ship.IsOutdated]"
 							size = { 16 16 }
 							texture = "gfx/interface/icons/formation_order_icons/upgrade.dds"
 						}
@@ -594,7 +467,7 @@ text = "[SelectLocalization(MilitaryFormation.GetCurrentHQ.IsValid, 'FLEET_ALMAN
 		section_header_button = {
 			datacontext = "[MilitaryFormation.GetShipList]"
 			parentanchor = hcenter
-			size = { @panel_width 48 }
+			size = { @panel_width 60 }
 			onmousehierarchyenter = "[AccessHighlightManager.HighlightMilitaryFormation( MilitaryFormation.Self )]"
 			onmousehierarchyleave = "[AccessHighlightManager.RemoveHighlight]"
 
@@ -610,7 +483,7 @@ text = "[SelectLocalization(MilitaryFormation.GetCurrentHQ.IsValid, 'FLEET_ALMAN
 				visible = "[GetVariableSystem.Exists(Concatenate('fleet_almanac_fleet_', MilitaryFormation.GetIDString))]"
 			}
 
-			### Flag, name and status
+			### Flag, name, status and current location (HQ region, otherwise sea region, otherwise unknown)
 			flowcontainer = {
 				parentanchor = vcenter
 				position = { 32 0 }
@@ -626,6 +499,7 @@ text = "[SelectLocalization(MilitaryFormation.GetCurrentHQ.IsValid, 'FLEET_ALMAN
 				flowcontainer = {
 					parentanchor = vcenter
 					direction = vertical
+					ignoreinvisible = yes
 
 					textbox = {
 						autoresize = yes
@@ -643,6 +517,36 @@ text = "[SelectLocalization(MilitaryFormation.GetCurrentHQ.IsValid, 'FLEET_ALMAN
 						max_width = 250
 						using = fontsize_small
 						text = "[MilitaryFormation.GetShortFormationStatusDesc]"
+					}
+
+					textbox = {
+						visible = "[MilitaryFormation.GetCurrentHQ.IsValid]"
+						autoresize = yes
+						align = nobaseline
+						elide = right
+						max_width = 250
+						using = fontsize_small
+						text = "FLEET_ALMANAC_LOCATION_HQ"
+					}
+
+					textbox = {
+						visible = "[And(Not(MilitaryFormation.GetCurrentHQ.IsValid), Not(StringIsEmpty(MilitaryFormation.GetCurrentSeaNode.GetStateRegion.GetStrategicRegion.GetNameNoFormatting)))]"
+						autoresize = yes
+						align = nobaseline
+						elide = right
+						max_width = 250
+						using = fontsize_small
+						text = "FLEET_ALMANAC_LOCATION_SEA"
+					}
+
+					textbox = {
+						visible = "[And(Not(MilitaryFormation.GetCurrentHQ.IsValid), StringIsEmpty(MilitaryFormation.GetCurrentSeaNode.GetStateRegion.GetStrategicRegion.GetNameNoFormatting))]"
+						autoresize = yes
+						align = nobaseline
+						elide = right
+						max_width = 250
+						using = fontsize_small
+						text = "FLEET_ALMANAC_LOCATION_UNKNOWN"
 					}
 				}
 			}
@@ -754,8 +658,7 @@ text = "[SelectLocalization(MilitaryFormation.GetCurrentHQ.IsValid, 'FLEET_ALMAN
 
 '@
 
-# Strategic regions, read from the game files (land first, then sea): a region counts as land if at least one of its states
-# is a land state (has subsistence_building - the sea states in map_data/state_regions have none)
+# Top-level blocks (key + body) of a game script file, comments removed
 function Get-TopBlocks($path) {
 	$text = (([IO.File]::ReadAllLines($path, $utf8)) | ForEach-Object { $_ -replace '#.*$', '' }) -join "`n"
 	$depth = 0; $key = $null; $startIdx = 0
@@ -771,47 +674,6 @@ function Get-TopBlocks($path) {
 	}
 	return ,$res
 }
-
-$gameRoot = Split-Path $game -Parent
-$landStates = @{}
-foreach ($f in (Get-ChildItem "$gameRoot\map_data\state_regions" -Filter '*.txt')) {
-	foreach ($b in (Get-TopBlocks $f.FullName)) { if ($b.Body -match '\bsubsistence_building\b') { $landStates[$b.Key] = $true } }
-}
-if ($landStates.Count -eq 0) { throw 'No land states found' }
-
-$regions = New-Object System.Collections.Generic.List[string]
-$waterRegions = New-Object System.Collections.Generic.List[string]
-foreach ($f in (Get-ChildItem "$gameRoot\common\strategic_regions" -Filter '*.txt' | Sort-Object Name)) {
-	foreach ($b in (Get-TopBlocks $f.FullName)) {
-		if ($b.Body -match '(?s)states\s*=\s*\{([^}]*)\}') {
-			$stateKeys = [regex]::Matches($Matches[1], '[A-Za-z_][A-Za-z0-9_]*') | ForEach-Object { $_.Value }
-			if (@($stateKeys | Where-Object { $landStates.ContainsKey($_) }).Count -gt 0) { $regions.Add($b.Key) } else { $waterRegions.Add($b.Key) }
-		}
-	}
-}
-if ($regions.Count -eq 0) { throw 'No land strategic regions found' }
-$landCount = $regions.Count
-$regions.AddRange($waterRegions)
-
-$regionLines = New-Object System.Collections.Generic.List[string]
-$regionLines.Add("		### Strategic regions ($landCount land + $($waterRegions.Count) sea, generated from game/common/strategic_regions): one group per region")
-$regionLines.Add('		flowcontainer = {')
-$regionLines.Add('			parentanchor = hcenter')
-$regionLines.Add('			direction = vertical')
-$regionLines.Add('			ignoreinvisible = yes')
-$regionLines.Add('')
-foreach ($r in $regions) {
-	$regionLines.Add("			fleet_almanac_region_group = { datacontext = `"[GetStrategicRegion('$r')]`" }")
-}
-$regionLines.Add('		}')
-
-$contentList = New-Object System.Collections.Generic.List[string]
-foreach ($s in $content) {
-	if ($s.Trim() -eq '@@REGION_GROUPS@@') { foreach ($x in $regionLines) { $contentList.Add($x) } } else { $contentList.Add($s) }
-}
-$content = $contentList
-"strategic regions: $landCount land + $($waterRegions.Count) sea"
-
 
 # Ship modification slots in a fixed order (non-utility slots from common/ship_modification_slots):
 # one icon group per slot, replacing @@MOD_SLOTS@@ (ship template lines) and @@MOD_SLOTS_SHIP@@ (outdated ships tooltip)

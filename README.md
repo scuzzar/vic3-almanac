@@ -1,9 +1,9 @@
 # Fleet Almanac
 
-A lean UI mod for **Victoria 3** (1.13.x) that adds an **Almanac** tab to the country panel of every country (including your own), giving an overview of its navy:
+A lean UI mod for **Victoria 3** (1.14.x) that adds an **Almanac** tab to the country panel of every country (including your own), giving an overview of its navy:
 
 - **Ships** by ship group, with one line per ship template (number of ships, type silhouette, ship type and template name, modifications sorted by slot, armor, hull damage); a marker below the number shows outdated ships of that template, hovering it lists them with their current equipment
-- **Fleets** grouped by their current location (strategic region of the current HQ, or the sea region a fleet is in): one line per fleet (name, status, ships per ship group, open fleet) that expands to the same ship breakdown for that fleet
+- **Fleets**: one line per fleet (name, status, current location - strategic region of the current HQ or the sea region the fleet is in -, ships per ship group, open fleet) that expands to the same ship breakdown for that fleet
 
 While the mouse is over the Almanac tab, the map switches to the military map mode (fleets, HQs, naval missions).
 
@@ -29,7 +29,7 @@ The mod is purely cosmetic: no scripted effects, nothing is written to the save 
 
 ## Rebuilding after a game update
 
-`gui/00_fleet_almanac.gui` contains copies of vanilla types (`country_panel`, `tab_buttons`) and lists generated from the installed game (land strategic regions, ship modification slots). After a game update, regenerate it:
+`gui/00_fleet_almanac.gui` contains copies of vanilla types (`country_panel`, `tab_buttons`) and a list generated from the installed game (ship modification slots). After a game update, regenerate it:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools\build_fleet_almanac.ps1
